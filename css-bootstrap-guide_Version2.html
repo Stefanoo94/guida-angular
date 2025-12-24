@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Guida pratica: Buone regole CSS &amp; Bootstrap</title>
+  <meta name="description" content="Guida operativa alle regole di buona programmazione CSS e best practice per usare e personalizzare Bootstrap (Sass, theming, tree-shaking, performance).">
+  <meta name="author" content="Stefanoo94">
+  <style>
+    :root{
+      --max-width:1100px;
+      --accent:#0b71e5;
+      --muted:#666;
+      --bg:#fbfdff;
+      --card:#fff;
+      --mono: Menlo, Monaco, "Courier New", monospace;
+      --radius:10px;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color:#111;
+      background:linear-gradient(180deg,var(--bg),#fff 60%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px 16px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+      background:var(--card);
+      box-shadow:0 6px 24px rgba(20,30,50,0.08);
+      border-radius:var(--radius);
+      padding:26px;
+      box-sizing:border-box;
+    }
+    header{display:flex;align-items:flex-start;gap:16px;}
+    header h1{margin:0;font-size:1.35rem;}
+    header p{margin:4px 0 0;color:var(--muted);font-size:0.95rem;}
+    nav{margin-top:14px;}
+    nav a{margin-right:10px;color:var(--accent);text-decoration:none;font-weight:600;}
+    section{margin-top:20px;}
+    h2{margin:0 0 8px 0;font-size:1.05rem;color:#0b2b45;}
+    p.lead{margin:4px 0 12px 0;color:var(--muted);}
+    ul{margin:8px 0 12px 24px;}
+    ol{margin:8px 0 12px 24px;}
+    pre{background:#f6f8fa;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.45;}
+    code{font-family:var(--mono);font-size:0.95em;}
+    .note{background:#fff8c6;border-left:4px solid #ffd54f;padding:10px;border-radius:8px;margin:10px 0;color:#6a5a00;}
+    .tip{background:#eef9ff;border-left:4px solid var(--accent);padding:10px;margin:10px 0;border-radius:8px;}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600;}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,113,229,0.12);}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px;margin-top:12px;}
+    .card{background:#fbfeff;border:1px solid #eef5fb;padding:12px;border-radius:8px;}
+    footer{margin-top:22px;border-top:1px solid #eee;padding-top:12px;color:var(--muted);font-size:0.95rem;}
+    @media print{
+      body{background:#fff;padding:0;}
+      .wrap{box-shadow:none;border-radius:0;padding:12px;}
+      nav, .controls {display:none;}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Buone regole CSS &amp; guida per Bootstrap</h1>
+        <p class="lead">Sintesi operativa: principi, architetture, performance, tooling, testing e istruzioni pratiche per personalizzare Bootstrap con Sass e ridurre il peso del bundle.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Sezioni">
+      <a href="#principi">Principi</a>
+      <a href="#naming">Naming &amp; Architetture</a>
+      <a href="#responsive">Responsività &amp; Layout</a>
+      <a href="#performance">Performance</a>
+      <a href="#tooling">Tooling</a>
+      <a href="#testing">Testing</a>
+      <a href="#accessibilita">Accessibilità</a>
+      <a href="#bootstrap">Bootstrap</a>
+      <a href="#examples">Esempi</a>
+      <a href="#checklist">Checklist</a>
+    </nav>
+
+    <section id="principi">
+      <h2>Principi generali</h2>
+      <ul>
+        <li>Separazione delle responsabilità: HTML = struttura, CSS = presentazione, JS = comportamento.</li>
+        <li>Mobile‑first: scrivi breakpoint con <code>min-width</code> (scalare verso l'alto).</li>
+        <li>Preferisci classi per stili riutilizzabili; evita styling sugli elementi e ID per lo styling.</li>
+        <li>Evita <code>!important</code>; risolvi la specificità con architettura e ordine dei file.</li>
+        <li>DRY: usa variabili, mixin, classi utility quando sensato.</li>
+      </ul>
+    </section>
+
+    <section id="naming">
+      <h2>Naming &amp; Architetture</h2>
+      <ul>
+        <li>BEM (Block__Element--Modifier): prevedibile e leggibile per team.</li>
+        <li>ITCSS: struttura a layer (settings → tools → generic → elements → components → utilities) ottima per progetti grandi.</li>
+        <li>SMACSS / OOCSS: focalizzati su separazione di struttura e skin quando richiesto.</li>
+        <li>Scegli una convenzione e documentala nel team (styleguide minima).</li>
+      </ul>
+    </section>
+
+    <section id="responsive">
+      <h2>Responsività &amp; layout</h2>
+      <ul>
+        <li>Usa Flexbox per componenti 1D e CSS Grid per layout 2D.</li>
+        <li>Centralizza breakpoint in variabili/mixin Sass.</li>
+        <li>Typography fluida: usa <code>clamp()</code> o calcoli con <code>vw</code> per testi scalabili.</li>
+        <li>Gestione di 100vh su mobile: preferisci la variabile <code>--vh</code> impostata via JS o unità dinamiche (dvh) quando supportate.</li>
+      </ul>
+    </section>
+
+    <section id="performance">
+      <h2>Performance e produzione</h2>
+      <ul>
+        <li>Minify, compressione (Brotli/Gzip) e fingerprinting per caching.</li>
+        <li>Critical CSS inline per above‑the‑fold; preload del resto (main.css).</li>
+        <li>Tree‑shake CSS con PurgeCSS (o simili): safelist per classi dinamiche.</li>
+        <li>Limitare font/varianti; preload dei font critici + <code>font-display: swap</code>.</li>
+      </ul>
+      <div class="note">Attenzione: PurgeCSS rimuove le classi non trovate staticamente. Se usi classi dinamiche (es. <code>btn-${color}</code>), mettile in safelist.</div>
+    </section>
+
+    <section id="tooling">
+      <h2>Tooling &amp; workflow</h2>
+      <ul>
+        <li>Sass (SCSS) moderno con <code>@use</code> / <code>@forward</code> per modularità.</li>
+        <li>PostCSS + Autoprefixer per compatibilità; stylelint per regole di stile e qualità.</li>
+        <li>Bundler moderno: Vite (consigliato), Webpack o Rollup.</li>
+        <li>Source maps in dev; no source maps in prod.</li>
+      </ul>
+    </section>
+
+    <section id="testing">
+      <h2>Testing &amp; debugging</h2>
+      <ul>
+        <li>Visual regression: Percy, Chromatic.</li>
+        <li>Coverage CSS: Chrome DevTools → Coverage per trovare regole non usate.</li>
+        <li>Performance: Lighthouse, WebPageTest, waterfall per LCP/CLS.</li>
+        <li>Accessibilità automatica: axe-core.</li>
+      </ul>
+    </section>
+
+    <section id="accessibilita">
+      <h2>Accessibilità &amp; sicurezza CSS</h2>
+      <ul>
+        <li>Contrasto colori sufficiente (WCAG AA/AAA).</li>
+        <li>Focus visibile: non rimuovere outline senza alternativa visiva.</li>
+        <li>Evita di inserire contenuto significativo solo con <code>::before</code>/<code>::after</code> (screen reader).</li>
+        <li>Sanitizza inline styles in contenuti generati dall'utente per evitare XSS.</li>
+      </ul>
+    </section>
+
+    <section id="bootstrap">
+      <h2>Guida pratica per Bootstrap (5.x)</h2>
+      <p class="lead">Principali pratiche per integrare, personalizzare e ottimizzare Bootstrap usando Sass.</p>
+
+      <h3>Quando usare Bootstrap</h3>
+      <ul>
+        <li>Prototipi, dashboard, MVP o interfacce che beneficiano di componenti pronti.</li>
+        <li>Evita se il progetto richiede peso minimo e UI altamente custom senza dipendenze.</li>
+      </ul>
+
+      <h3>Installazione consigliata (NPM + build)</h3>
+      <pre><code>npm install bootstrap
+// poi importare tramite Sass nel progetto (es. main.scss)</code></pre>
+
+      <h3>Personalizzazione con Sass</h3>
+      <p>Non modificare <code>node_modules</code>. Sovrascrivi variabili prima di importare Bootstrap.</p>
+      <pre><code>// styles/_custom-variables.scss
+$primary: #0b71e5;
+$body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+
+// styles/main.scss
+@use "bootstrap" with (
+  $primary: #0b71e5,
+  $body-font-family: 'Inter, system-ui, -apple-system, \"Segoe UI\", Roboto, Arial'
+);</code></pre>
+
+      <h3>Import selettivo dei partials</h3>
+      <p>Per ridurre peso, importa solo i partials necessari:</p>
+      <pre><code>@use "bootstrap/scss/functions";
+@use "bootstrap/scss/variables";
+@use "bootstrap/scss/mixins";
+
+/* core */
+@use "bootstrap/scss/root";
+@use "bootstrap/scss/reboot";
+@use "bootstrap/scss/type";
+/* layout / components selezionati */
+@use "bootstrap/scss/grid";
+@use "bootstrap/scss/buttons";
+@use "bootstrap/scss/forms";
+@use "bootstrap/scss/utilities";</code></pre>
+
+      <h3>Utility API e theming runtime</h3>
+      <p>Bootstrap 5 permette di generare utility personalizzate via mappe Sass e usare variabili CSS per themaing dinamico (dark mode).</p>
+
+      <h3>JavaScript</h3>
+      <p>Importa soltanto i plugin necessari e preferisci import ES modules:</p>
+      <pre><code>import { Tooltip, Modal } from 'bootstrap';
+const t = new Tooltip(document.querySelector('[data-bs-toggle="tooltip"]'));</code></pre>
+
+      <h3>PurgeCSS e safelist</h3>
+      <pre><code>// postcss.config.js (esempio)
+require('@fullhuman/postcss-purgecss')({
+  content: ['./src/**/*.html','./src/**/*.js'],
+  safelist: { standard: ['modal','fade','show'], deep: [/^btn-/, /^text-/] }
+})</code></pre>
+      <div class="note">Safelist le classi dinamiche generate in runtime o da template.</div>
+
+      <h3>Sicurezza/Performance</h3>
+      <ul>
+        <li>CDN: usa SRI (integrity) e crossorigin.</li>
+        <li>Preferisci build locale personalizzata per production per avere controllo sui partials inclusi.</li>
+      </ul>
+    </section>
+
+    <section id="examples">
+      <h2>Esempi pratici</h2>
+
+      <h3>1) Override variabile primary</h3>
+      <pre><code>// _custom.scss
+$primary: #ff6b6b;
+@use "bootstrap" with ($primary: $primary);</code></pre>
+
+      <h3>2) Importare solo Grid e Buttons</h3>
+      <pre><code>@use "bootstrap/scss/functions";
+@use "bootstrap/scss/variables";
+@use "bootstrap/scss/mixins";
+
+@use "bootstrap/scss/grid";
+@use "bootstrap/scss/buttons";</code></pre>
+
+      <h3>3) Esempio PostCSS + Purge (config minimale)</h3>
+      <pre><code>module.exports = {
+  plugins: [
+    require('@fullhuman/postcss-purgecss')({
+      content: ['./src/**/*.html','./src/**/*.js','./src/**/*.vue'],
+      safelist: [/^btn-/, /^text-/],
+    }),
+    require('autoprefixer'),
+    require('cssnano')({preset:'default'})
+  ]
+}</code></pre>
+    </section>
+
+    <section id="checklist">
+      <h2>Checklist operativa (rapida)</h2>
+      <div class="grid">
+        <div class="card"><strong>Architettura</strong>
+          <ul>
+            <li>Scegli ITCSS / BEM / SMACSS e documentala</li>
+            <li>Variabili/design tokens centralizzati</li>
+          </ul>
+        </div>
+        <div class="card"><strong>Build &amp; Performance</strong>
+          <ul>
+            <li>Critical CSS + preload</li>
+            <li>PurgeCSS / tree-shaking con safelist</li>
+            <li>Minify &amp; compressione Brotli/Gzip</li>
+          </ul>
+        </div>
+        <div class="card"><strong>Bootstrap</strong>
+          <ul>
+            <li>Installa via NPM</li>
+            <li>Personalizza con Sass variables (non editare node_modules)</li>
+            <li>Import selettivo partials</li>
+          </ul>
+        </div>
+        <div class="card"><strong>Qualità</strong>
+          <ul>
+            <li>stylelint in CI</li>
+            <li>Visual regression tests</li>
+            <li>Accessibility checks (axe)</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p class="muted">Vuoi che trasformi questa guida in repository starter (package.json + vite + sass + bootstrap + purgecss) o in un file PDF? Dimmi quale opzione preferisci e lo creo.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Funzioni semplici: stampa e copia contenuto
+    (function(){
+      const printBtn = document.createElement('button');
+      printBtn.textContent = 'Stampa / Salva come PDF';
+      printBtn.className = 'ghost';
+      printBtn.style.position = 'fixed';
+      printBtn.style.right = '18px';
+      printBtn.style.bottom = '18px';
+      printBtn.addEventListener('click', () => window.print());
+      document.body.appendChild(printBtn);
+    })();
+  </script>
+</body>
+</html>
