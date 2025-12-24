@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Regole di buona programmazione in HTML — Riassunto operativo</title>
+  <meta name="author" content="Stefanoo94">
+  <meta name="description" content="Riassunto operativo delle regole di buona programmazione in HTML: semantica, accessibilità, performance, SEO, sicurezza, forms e checklist.">
+  <style>
+    :root{
+      --max-width:1000px;
+      --accent:#0b71e5;
+      --muted:#666;
+      --bg:#fbfdff;
+      --card:#fff;
+      --mono: Menlo, Monaco, "Courier New", monospace;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color:#111;
+      background:linear-gradient(180deg,var(--bg),#fff 60%);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:28px 16px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+      background:var(--card);
+      box-shadow:0 6px 24px rgba(20,30,50,0.08);
+      border-radius:10px;
+      padding:26px;
+      box-sizing:border-box;
+    }
+    header{display:flex;align-items:flex-start;gap:16px;}
+    header h1{margin:0;font-size:1.4rem;}
+    header p{margin:4px 0 0;color:var(--muted);font-size:0.95rem;}
+    nav{margin-top:14px;}
+    nav a{margin-right:10px;color:var(--accent);text-decoration:none;font-weight:600;}
+    section{margin-top:20px;}
+    h2{margin:0 0 8px 0;font-size:1.05rem;color:#0b2b45;}
+    p.lead{margin:4px 0 12px 0;color:var(--muted);}
+    ul{margin:8px 0 12px 24px;}
+    ol{margin:8px 0 12px 24px;}
+    pre{background:#f6f8fa;padding:12px;border-radius:6px;overflow:auto;font-family:var(--mono);font-size:13px;}
+    .note{background:#fff8c6;border-left:4px solid #ffd54f;padding:10px;border-radius:6px;margin:10px 0;color:#6a5a00;}
+    .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+    button{background:var(--accent);color:#fff;border:0;padding:8px 12px;border-radius:6px;cursor:pointer;font-weight:600;}
+    button.ghost{background:transparent;color:var(--accent);border:1px solid rgba(11,113,229,0.15);}
+    .checklist{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px;margin-top:12px;}
+    .card{background:#fbfeff;border:1px solid #eef5fb;padding:12px;border-radius:8px;}
+    label{display:flex;align-items:flex-start;gap:10px;cursor:pointer;}
+    input[type="checkbox"]{width:18px;height:18px;margin-top:3px;}
+    footer{margin-top:22px;border-top:1px solid #eee;padding-top:12px;color:var(--muted);font-size:0.95rem;}
+    @media print{
+      body{background:#fff;padding:0;}
+      .wrap{box-shadow:none;border-radius:0;padding:12px;}
+      .controls, nav, footer {display:none;}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main">
+    <header>
+      <div>
+        <h1>Regole di buona programmazione in HTML — Riassunto operativo</h1>
+        <p class="lead">Semantica, accessibilità, performance, SEO, sicurezza, forms e checklist pratica — versione sintetica e pronta da consultare.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Sezioni rapide">
+      <a href="#semantica">Semantica</a>
+      <a href="#accessibilita">Accessibilità</a>
+      <a href="#performance">Performance</a>
+      <a href="#css-font-layout">CSS &amp; Font</a>
+      <a href="#immagini">Immagini</a>
+      <a href="#forms">Forms</a>
+      <a href="#seo">SEO</a>
+      <a href="#sicurezza">Sicurezza</a>
+      <a href="#checklist">Checklist</a>
+    </nav>
+
+    <section id="semantica" aria-labelledby="semantica-heading">
+      <h2 id="semantica-heading">1) Semantica e struttura</h2>
+      <ul>
+        <li>Usa elementi semantici: &lt;header&gt;, &lt;main&gt;, &lt;nav&gt;, &lt;article&gt;, &lt;section&gt;, &lt;footer&gt; — evita div anonimi.</li>
+        <li>Dichiara la lingua: &lt;html lang="it"&gt;.</li>
+        <li>Usa una gerarchia coerente di titoli (h1 → h2 → h3) per accessibilità e SEO.</li>
+      </ul>
+    </section>
+
+    <section id="accessibilita" aria-labelledby="a11y-heading">
+      <h2 id="a11y-heading">2) Accessibilità (A11y)</h2>
+      <ul>
+        <li>Associa &lt;label&gt; ad ogni input (for/id o wrapping).</li>
+        <li>Alt per immagini informative; alt="" per immagini decorative.</li>
+        <li>Controlli custom: aggiungi role, tabindex e supporta tastiera (Enter/Space).</li>
+        <li>Evita aria-hidden su contenuti interattivi; usa aria-hidden per elementi puramente decorativi.</li>
+        <li>Indica quando un link apre nuova finestra e usa <code>rel="noopener"</code> con <code>target="_blank"</code>.</li>
+      </ul>
+    </section>
+
+    <section id="performance" aria-labelledby="perf-heading">
+      <h2 id="perf-heading">3) Performance e caricamento risorse</h2>
+      <ul>
+        <li>Estrai e inline solo il critical CSS (above-the-fold, idealmente &lt; ~14 KB).</li>
+        <li>Preload risorse critiche: main.css (<code>as="style"</code>), webfont critici (<code>as="font"</code>, <code>type</code>, <code>crossorigin</code>).</li>
+        <li>Preconnect a domini esterni critici (CDN, font provider).</li>
+        <li>Non abusare del preload: limitare a 1–3 risorse critiche per pagina.</li>
+        <li>Script non critici: usa <code>defer</code> o mettili alla fine del body.</li>
+      </ul>
+    </section>
+
+    <section id="css-font-layout" aria-labelledby="css-heading">
+      <h2 id="css-heading">4) CSS, font e layout</h2>
+      <ul>
+        <li>Pattern raccomandato: critical inline + <code>&lt;link rel="preload" as="style"&gt;</code> + <code>&lt;link rel="stylesheet"&gt;</code>.</li>
+        <li>Usa <code>font-display: swap</code> e preload per i font critici; configura CORS se necessari.</li>
+        <li>Riserva spazio per immagini con width/height o <code>aspect-ratio</code> per ridurre CLS.</li>
+        <li>Gestisci 100vh su mobile con variabili CSS (--vh) o nuove unità (dvh/svh/lvh) dove supportate.</li>
+      </ul>
+    </section>
+
+    <section id="immagini" aria-labelledby="img-heading">
+      <h2 id="img-heading">5) Immagini e media</h2>
+      <ul>
+        <li>Usa <code>srcset</code>/<code>sizes</code>/<code>picture</code> e formati moderni (AVIF/WebP).</li>
+        <li>Lazy-load per risorse sotto la fold (<code>loading="lazy"</code> o IntersectionObserver).</li>
+        <li>Specificare dimensioni o placeholder per evitare layout shift.</li>
+      </ul>
+    </section>
+
+    <section id="forms" aria-labelledby="forms-heading">
+      <h2 id="forms-heading">6) Forms e UX</h2>
+      <ul>
+        <li>Usa <code>autocomplete</code> correttamente (es. <code>autocomplete="email"</code>).</li>
+        <li>Validazione client-side solo per UX; validare e sanitizzare lato server sempre.</li>
+        <li>Fornire messaggi di errore chiari e accessibili (usa <code>aria-live</code> per messaggi dinamici).</li>
+      </ul>
+    </section>
+
+    <section id="seo" aria-labelledby="seo-heading">
+      <h2 id="seo-heading">7) SEO e metadata</h2>
+      <ul>
+        <li>Title e meta description unici e descrittivi.</li>
+        <li>Open Graph/Twitter Card per anteprime social (<code>og:title</code>, <code>og:description</code>, <code>og:image</code>).</li>
+        <li>Usa <code>rel="canonical"</code> per evitare duplicate content.</li>
+        <li>Per siti multilingua usa <code>rel="alternate" hreflang</code> reciprocamente (includi anche <code>x-default</code>).</li>
+      </ul>
+    </section>
+
+    <section id="sicurezza" aria-labelledby="sec-heading">
+      <h2 id="sec-heading">8) Sicurezza</h2>
+      <ul>
+        <li>Imposta header come <code>X-Content-Type-Options: nosniff</code>.</li>
+        <li>Evita inline script/style quando possibile; se necessari, usa CSP con nonce/hash.</li>
+        <li>Usa <code>rel="noopener"</code> per link con <code>target="_blank"</code>.</li>
+        <li>Sanitizza e valida tutti i dati lato server per prevenire XSS/SQL injection.</li>
+      </ul>
+    </section>
+
+    <section id="best" aria-labelledby="best-heading">
+      <h2 id="best-heading">9) Best practices generali</h2>
+      <ul>
+        <li>Mantieni markup pulito e leggibile; separa contenuto (HTML), presentazione (CSS) e logica (JS).</li>
+        <li>Versiona/fingerprint delle risorse statiche e usa caching appropriato (Cache-Control).</li>
+        <li>Evita tabelle per il layout: usa CSS Grid e Flexbox.</li>
+      </ul>
+    </section>
+
+    <section id="testing" aria-labelledby="testing-heading">
+      <h2 id="testing-heading">10) Testing e misurazione</h2>
+      <ul>
+        <li>Misura con Lighthouse (FCP, LCP, CLS), WebPageTest e Chrome DevTools (waterfall, priority).</li>
+        <li>Testa su device reali e varie viewports (mobile/desktop).</li>
+        <li>Controlla la console per warning su preload non usati o doppio fetch.</li>
+      </ul>
+    </section>
+
+    <section id="checklist" aria-labelledby="checklist-heading">
+      <h2 id="checklist-heading">Checklist rapida (interattiva)</h2>
+      <p class="lead">Segna gli elementi completati. Lo stato è salvato localmente nel browser.</p>
+
+      <div class="controls" role="toolbar" aria-label="Azioni checklist">
+        <button id="clear">Azzera checklist</button>
+        <button id="print" class="ghost">Stampa / Salva come PDF</button>
+      </div>
+
+      <div class="checklist" role="list">
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="lang"> &lt;html lang&gt; impostato</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="meta"> meta charset e meta viewport all'inizio dell&lt;head&gt;</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="critical"> Critical CSS inline + preload main.css + stylesheet</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="fonts"> Webfont critici preloadati + font-display</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="images"> Alt per immagini e dimensioni riservate</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="labels"> Label per tutti gli input dei form</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="noopener"> rel="noopener" per target="_blank"</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="canonical"> Canonical + OG + Twitter card (se rilevante)</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="csp"> CSP / header di sicurezza configurati</label>
+        </div>
+        <div class="card" role="listitem">
+          <label><input type="checkbox" data-key="testing"> Test Lighthouse / WebPageTest completati</label>
+        </div>
+      </div>
+
+      <div class="note" id="savedNote" role="status" aria-live="polite" style="display:none;margin-top:12px;">
+        Stato checklist salvato localmente.
+      </div>
+    </section>
+
+    <footer>
+      <p>Questo file è una versione HTML del riassunto delle regole di buona programmazione in HTML. Puoi stampare o salvare come PDF (pulsante "Stampa / Salva come PDF").</p>
+      <p class="small">Se vuoi che lo aggiunga al tuo repository, dimmi owner/repo/branch e path del file.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Persist checklist state in localStorage
+    (function(){
+      const CHECK_KEY_PREFIX = 'goodHtmlChecklist:';
+      const checkboxes = document.querySelectorAll('input[type="checkbox"][data-key]');
+      const savedNote = document.getElementById('savedNote');
+      // Load
+      checkboxes.forEach(cb => {
+        const key = CHECK_KEY_PREFIX + cb.dataset.key;
+        const val = localStorage.getItem(key);
+        if(val === '1') cb.checked = true;
+        cb.addEventListener('change', () => {
+          localStorage.setItem(key, cb.checked ? '1' : '0');
+          showSavedNote();
+        });
+      });
+      function showSavedNote(){
+        if(!savedNote) return;
+        savedNote.style.display = 'block';
+        clearTimeout(window._savedNoteTimeout);
+        window._savedNoteTimeout = setTimeout(()=> savedNote.style.display = 'none', 1800);
+      }
+      document.getElementById('clear').addEventListener('click', () => {
+        checkboxes.forEach(cb => {
+          cb.checked = false;
+          localStorage.setItem(CHECK_KEY_PREFIX + cb.dataset.key, '0');
+        });
+        showSavedNote();
+      });
+      document.getElementById('print').addEventListener('click', () => window.print());
+    })();
+  </script>
+</body>
+</html>
