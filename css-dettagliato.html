@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CSS — Spiegazione dettagliata: Selettori, Box Model, Display, Flexbox, Grid, Responsive, Tipografia, Variabili</title>
+  <meta name="description" content="Approfondimento estremamente dettagliato sui primi 7 punti essenziali del CSS: selettori e specificità, box model, display/posizionamento, Flexbox & Grid, responsive e media queries, tipografia e colori, variabili e modularità.">
+  <style>
+    :root{
+      --max-width:1080px;
+      --accent:#0b71e5;
+      --muted:#666;
+      --bg:#f7fbff;
+      --card:#fff;
+      --mono: Menlo, Monaco, "Courier New", monospace;
+      --radius:10px;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color:#111;
+      background:linear-gradient(180deg,var(--bg),#ffffff 60%);
+      padding:28px 16px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+      background:var(--card);
+      box-shadow:0 8px 32px rgba(10,30,60,0.06);
+      border-radius:var(--radius);
+      padding:28px;
+      box-sizing:border-box;
+      line-height:1.55;
+    }
+    header h1{margin:0;font-size:1.5rem;}
+    header p{margin:8px 0 0;color:var(--muted);}
+    nav{margin-top:14px;}
+    nav a{margin-right:10px;color:var(--accent);text-decoration:none;font-weight:600;}
+    section{margin-top:20px;}
+    h2{margin:0 0 8px 0;font-size:1.15rem;color:#0b2b45;}
+    h3{margin:12px 0 6px 0;font-size:1rem;color:#15324a;}
+    p.lead{margin:6px 0 12px 0;color:var(--muted);}
+    pre{background:#0f1720;color:#e6eef7;padding:14px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.45;}
+    code{font-family:var(--mono);background:rgba(11,113,229,0.04);padding:2px 6px;border-radius:4px;}
+    ul{margin:8px 0 12px 20px;}
+    .note{background:#fff8c6;border-left:4px solid #ffd54f;padding:10px;border-radius:8px;margin:12px 0;color:#6a5a00;}
+    .tip{background:#eef9ff;border-left:4px solid var(--accent);padding:10px;margin:12px 0;border-radius:8px;}
+    .examples{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px;}
+    .card{background:#fbfeff;border:1px solid #eef5fb;padding:12px;border-radius:8px;}
+    footer{margin-top:26px;border-top:1px solid #eee;padding-top:12px;color:var(--muted);font-size:0.95rem;}
+    @media (min-width:900px){
+      .examples{grid-template-columns:repeat(2,1fr);}
+    }
+    @media print{
+      body{background:#fff;padding:0;}
+      .wrap{box-shadow:none;border-radius:0;padding:12px;}
+      nav, footer {display:none;}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">Approfondimento dettagliato — CSS (primi 7 argomenti)</h1>
+        <p class="lead">Selettori & specificità; Box model; Display e posizionamento; Flexbox & Grid; Responsive & media queries; Tipografia & colori; Variabili e modularità. Contiene spiegazioni tecniche, esempi, anti‑pattern, debugging e suggerimenti pratici.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Sezioni">
+      <a href="#selectors">1. Selettori & Specificità</a>
+      <a href="#boxmodel">2. Box Model</a>
+      <a href="#display">3. Display & Posizionamento</a>
+      <a href="#flexgrid">4. Flexbox & Grid</a>
+      <a href="#responsive">5. Responsive & Media Queries</a>
+      <a href="#typography">6. Tipografia & Colori</a>
+      <a href="#vars">7. Variabili & Modularità</a>
+    </nav>
+
+    <!-- 1 -->
+    <section id="selectors" aria-labelledby="sel-heading">
+      <h2 id="sel-heading">1) Selettori e Specificità</h2>
+      <p class="lead">I selettori dicono al browser quali elementi stilizzare. Capire la specificità è fondamentale per mantenere CSS scalabile e prevedibile.</p>
+
+      <h3>Tipi di selettori</h3>
+      <ul>
+        <li>Selettori di tipo (elemento): <code>p</code>, <code>h1</code></li>
+        <li>Classi: <code>.btn</code>, utili e riutilizzabili</li>
+        <li>ID: <code>#header</code>, alta specificità — evitare per styling</li>
+        <li>Selettori di attributo: <code>a[target="_blank"]</code></li>
+        <li>Pseudo‑classi e pseudo‑elementi: <code>:hover</code>, <code>:focus</code>, <code>::before</code></li>
+        <li>Combinatori: discendenza (<code> .card p</code>), figlio diretto (<code>.nav &gt; li</code>), adiacenza (<code>h1 + p</code>)</li>
+      </ul>
+
+      <h3>Specificità — regole e calcolo</h3>
+      <p>La specificità è un peso usato dal browser per scegliere quale regola applicare quando più regole matchano lo stesso elemento. Convenzione di calcolo (semplificata):</p>
+      <ol>
+        <li>Inline style (es. <code>style="..."</code>) ha il valore più alto.</li>
+        <li>Conteggio ID (es. <code>#id</code>) — conta molto.</li>
+        <li>Conteggio classi, attributi e pseudo‑classi.</li>
+        <li>Conteggio di elementi e pseudo‑elementi.</li>
+      </ol>
+      <p>Esempio pratico:</p>
+      <pre><code>/* Specificità crescente */
+p { color: blue; }                     /* 0,0,0,1 */
+.special p { color: green; }           /* 0,0,1,1 */
+#main .special p { color: red; }       /* 0,1,1,1 */
+element.style { color: black; }        /* inline, vince */</code></pre>
+
+      <h3>Best practice e anti‑pattern</h3>
+      <ul>
+        <li>Preferisci classi per controllare lo stile: <code>.btn</code> invece di <code>button</code> o <code>#submit</code>.</li>
+        <li>Evita catene di discendenza profonde (es. <code>.a .b .c .d</code>) — rendono fragile il CSS.</li>
+        <li>Evita usare ID per styling: limitano riuso e rendono difficile l'override.</li>
+        <li>Non abusare di <code>!important</code> — maschera problemi di architettura.</li>
+      </ul>
+
+      <h3>Debugging</h3>
+      <ul>
+        <li>Usa DevTools → Styles: guarda l’elenco delle regole applicate e quali sono sovrascritte.</li>
+        <li>Console: ispeziona la specificità visivamente; puoi provare a disabilitare regole per vedere effetti.</li>
+      </ul>
+
+      <div class="note">Se ti trovi spesso a dover aumentare la specificità per correggere stili, probabilmente l'architettura del CSS è sbagliata: rivedi naming e separazione dei layer (es. ITCSS).</div>
+    </section>
+
+    <!-- 2 -->
+    <section id="boxmodel" aria-labelledby="box-heading">
+      <h2 id="box-heading">2) Box Model</h2>
+      <p class="lead">Ogni elemento HTML è una "scatola" costituita da content, padding, border e margin. Comprendere il modello è cruciale per calcolare dimensioni e layout.</p>
+
+      <h3>Componenti del box model</h3>
+      <ul>
+        <li><strong>Content</strong>: contenuto reale (testo, immagine)</li>
+        <li><strong>Padding</strong>: spazio interno tra contenuto e bordo</li>
+        <li><strong>Border</strong>: bordo visibile</li>
+        <li><strong>Margin</strong>: spazio esterno tra elementi</li>
+      </ul>
+
+      <h3>box-sizing</h3>
+      <p>Proprietà che cambia il modo in cui viene calcolata la larghezza/altezza:</p>
+      <pre><code>/* Consigliato globalmente */
+*, *::before, *::after {
+  box-sizing: border-box;
+}</code></pre>
+      <p>Con <code>border-box</code> la larghezza include padding e border: più semplice da ragionare per layout responsivi.</p>
+
+      <h3>Collasso dei margin</h3>
+      <p>I margin verticali tra elementi adiacenti a volte collassano (il margin risultante è il massimo, non la somma). Questo può sorprendere; esempi comuni: margin-top del primo elemento figlio può far "spostare" il genitore.</p>
+
+      <h3>Problemi pratici e debugging</h3>
+      <ul>
+        <li>Usa DevTools → Box Model per visualizzare content/padding/border/margin in modo interattivo.</li>
+        <li>Se gli elementi sembrano "più grandi" del previsto, controlla padding e border, non solo width.</li>
+      </ul>
+
+      <div class="tip">Per layout complessi, definisci una "grid baseline" e usa variabili di spazio (spacing scale) per coerenza: <code>--space-1: 4px; --space-2: 8px; --space-3: 16px;</code>.</div>
+    </section>
+
+    <!-- 3 -->
+    <section id="display" aria-labelledby="disp-heading">
+      <h2 id="disp-heading">3) Display & Posizionamento</h2>
+      <p class="lead">Le proprietà <code>display</code> e <code>position</code> determinano come gli elementi fluiscono nel layout e come si comportano rispetto agli altri.</p>
+
+      <h3>Valori comuni di <code>display</code></h3>
+      <ul>
+        <li><code>block</code>: elemento a blocco, occupa tutta la larghezza</li>
+        <li><code>inline</code>: fluisce nel testo, non accetta width/height (o solo parzialmente)</li>
+        <li><code>inline-block</code>: comportamento intermedio (width/height applicabili)</li>
+        <li><code>flex</code>: container flessibile (Flexbox)</li>
+        <li><code>grid</code>: CSS Grid container</li>
+        <li><code>none</code>: non renderizza</li>
+      </ul>
+
+      <h3>Proprietà <code>position</code> (contesto e usi)</h3>
+      <ul>
+        <li><code>static</code>: default</li>
+        <li><code>relative</code>: mantiene spazio nel flusso; i figli con <code>absolute</code> saranno posizionati relativamente a questo elemento</li>
+        <li><code>absolute</code>: rimosso dal flusso; posizionato rispetto all'antenato posizionato più vicino</li>
+        <li><code>fixed</code>: posizionato rispetto alla viewport (utile per header sticky se non vuoi comportamento "sticky")</li>
+        <li><code>sticky</code>: si comporta come static fino a quando non viene raggiunta una soglia di scroll, poi si "incolla"</li>
+      </ul>
+
+      <h3>Best practice</h3>
+      <ul>
+        <li>Preferisci layout moderni (Flexbox/Grid) piuttosto che posizionamenti assoluti per layout principali.</li>
+        <li>Usa <code>position: relative</code> su contenitori quando serve come riferimento per posizionamenti assoluti interni.</li>
+        <li>Evita l'abuso di <code>position: absolute</code> per layout responsive: rompe il flusso e rende difficile l'adattamento.</li>
+      </ul>
+
+      <h3>Esempio: header sticky</h3>
+      <pre><code>header {
+  position: sticky;
+  top: 0;
+  z-index: 1000; /* assicura che sia sopra gli altri elementi */
+  background: white; /* evita trasparenze indesiderate durante lo scroll */
+}</code></pre>
+
+      <div class="note">Attenzione a <code>z-index</code>: è relativo al contesto di stacking. Se un genitore ha <code>transform</code> o <code>filter</code>, crea un nuovo contesto di stacking che può modificare il layering.</div>
+    </section>
+
+    <!-- 4 -->
+    <section id="flexgrid" aria-labelledby="fg-heading">
+      <h2 id="fg-heading">4) Flexbox & Grid — layout moderni</h2>
+      <p class="lead">Flexbox e Grid sono complementari: Flexbox per layout 1D (righe/colonne), Grid per layout 2D (matrici). Entrambi sono essenziali oggi.</p>
+
+      <h3>Flexbox — concetti chiave</h3>
+      <ul>
+        <li><code>display: flex</code> definisce il container; figli diventano flex items.</li>
+        <li><code>flex-direction</code>: <code>row</code> o <code>column</code>.</li>
+        <li><code>justify-content</code>: allineamento sul main axis (es. <code>space-between</code>).</li>
+        <li><code>align-items</code>: allineamento sul cross axis (es. <code>center</code>).</li>
+        <li><code>flex</code>: shorthand per <code>flex-grow</code>, <code>flex-shrink</code>, <code>flex-basis</code>. Es: <code>flex: 1 1 auto</code>.</li>
+      </ul>
+
+      <h3>Esempio Flexbox</h3>
+      <pre><code>.row {
+  display: flex;
+  gap: 12px;                /* spazio tra items */
+  align-items: center;
+  justify-content: space-between;
+}
+.item {
+  flex: 1 1 200px;          /* occupa spazio, ma non diventa più piccolo di 200px */
+}</code></pre>
+
+      <h3>Grid — concetti chiave</h3>
+      <ul>
+        <li><code>display: grid</code>, definisci righe e colonne con <code>grid-template-columns</code> / <code>grid-template-rows</code>.</li>
+        <li><code>grid-template-areas</code> per layout leggibile e semantico.</li>
+        <li><code>gap</code> per spaziatura tra celle.</li>
+        <li>Auto-placement e <code>minmax()</code>, <code>repeat()</code>, <code>auto-fit</code>/ <code>auto-fill</code> sono molto potenti per layout responsivi.</li>
+      </ul>
+
+      <h3>Esempio Grid responsivo</h3>
+      <pre><code>.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}</code></pre>
+
+      <h3>Quando usare cosa</h3>
+      <ul>
+        <li>Usa Flexbox per navbar, card-alignment, toolbar, small components.</li>
+        <li>Usa Grid per layout di pagina, gallerie, layout complessi a più dimensioni.</li>
+        <li>Non avere paura di combinare: Grid per il layout principale, Flexbox per i contenuti interni alle celle.</li>
+      </ul>
+
+      <h3>Debugging e strumenti</h3>
+      <ul>
+        <li>DevTools ha overlay per Flexbox e Grid: mostra axis, linee guida e sizing.</li>
+        <li>Usa <code>outline</code> temporaneo negli elementi per capire il loro box.</li>
+      </ul>
+    </section>
+
+    <!-- 5 -->
+    <section id="responsive" aria-labelledby="resp-heading">
+      <h2 id="resp-heading">5) Responsive & Media Queries</h2>
+      <p class="lead">Responsive design = adattare l'interfaccia a viewport diversi. Mobile‑first è la strategia raccomandata.</p>
+
+      <h3>Mobile‑first</h3>
+      <p>Scrivi stili base per dispositivi piccoli e aggiungi media queries con <code>min-width</code> per schermi più grandi. Questo favorisce performance e progressive enhancement.</p>
+
+      <h3>Esempio base</h3>
+      <pre><code>/* mobile-first */
+.container { padding: 12px; }
+
+@media (min-width: 768px) {
+  .container { padding: 24px; }
+}
+
+@media (min-width: 1200px) {
+  .container { max-width: 1100px; margin: 0 auto; }
+}</code></pre>
+
+      <h3>Breakpoint semantici</h3>
+      <p>Definisci breakpoint con nomi semantici (es. <code>--breakpoint-tablet</code>, <code>--breakpoint-desktop</code>) invece di numeri sparsi: migliora la leggibilità e la coerenza.</p>
+
+      <h3>Responsive images</h3>
+      <p>Usa <code>srcset</code> e <code>sizes</code> per servire l'immagine adeguata al device:</p>
+      <pre><code>&lt;img src="img-small.jpg"
+     srcset="img-small.jpg 480w, img-medium.jpg 1024w, img-large.jpg 2048w"
+     sizes="(max-width:600px) 100vw, 50vw"
+     alt="Descrizione"&gt;</code></pre>
+
+      <h3>Tip pratici</h3>
+      <ul>
+        <li>Testa su più dispositivi reali oltre che in DevTools.</li>
+        <li>Evita layout basati su pixel fissi; preferisci <code>rem</code> e percentuali per elementi fluidi.</li>
+        <li>Per breakpoints mobili, ricorda le UI dinamiche del browser (address bar che appare/scompare) — usa <code>window.visualViewport</code> quando necessario.</li>
+      </ul>
+    </section>
+
+    <!-- 6 -->
+    <section id="typography" aria-labelledby="type-heading">
+      <h2 id="type-heading">6) Tipografia & Colori</h2>
+      <p class="lead">La tipografia influisce fortemente su leggibilità e percezione. Gestire font, scale e colori correttamente è essenziale.</p>
+
+      <h3>Unità per font</h3>
+      <ul>
+        <li><code>rem</code>: relativo alla radice (preferibile per coerenza globale).</li>
+        <li><code>em</code>: relativo al font-size dell'elemento genitore (utile per componenti scalabili).</li>
+        <li><code>vw</code>: per titoli fluidi (usare con attenzione).</li>
+      </ul>
+      <pre><code>html { font-size: 16px; } /* 1rem = 16px */
+body { font-size: 1rem; line-height: 1.5; }</code></pre>
+
+      <h3>Scale tipografiche</h3>
+      <p>Definisci una scala tipografica (modular scale) per dimensioni coerenti: per esempio 1rem, 1.25rem, 1.5rem, 2rem, ecc.</p>
+
+      <h3>Webfonts e performance</h3>
+      <ul>
+        <li>Preload dei font critici con <code>&lt;link rel="preload" as="font"&gt;</code> e <code>crossorigin</code>.</li>
+        <li><code>@font-face</code> con <code>font-display: swap</code> per evitare FOIT prolungato.</li>
+        <li>Limitare varianti (peso/italic) per ridurre payload.</li>
+      </ul>
+
+      <h3>Colori e contrasto</h3>
+      <p>Verifica contrasto (WCAG AA/AAA). Usa variabili per palette e temi.</p>
+      <pre><code>:root {
+  --color-bg: #ffffff;
+  --color-text: #111827;
+  --color-primary: #0b71e5;
+}</code></pre>
+
+      <h3>Accessibilità del testo</h3>
+      <ul>
+        <li>Line-height di ~1.4–1.6 per testi lunghi.</li>
+        <li>Dimensione minima leggibile: non fare body < 14px per la leggibilità su mobile.</li>
+        <li>Non usare solo colore per trasmettere informazioni (es. errori) — aggiungi icone/testo esplicativo.</li>
+      </ul>
+    </section>
+
+    <!-- 7 -->
+    <section id="vars" aria-labelledby="vars-heading">
+      <h2 id="vars-heading">7) Variabili CSS & Modularità</h2>
+      <p class="lead">Le variabili CSS (Custom Properties) e la modularità aiutano a mantenere design coerente e permettono theming dinamico senza ricompilare.</p>
+
+      <h3>Custom Properties (variabili CSS)</h3>
+      <p>Definisci variabili nella radice e usale ovunque. Possono essere sovrascritte in contesti locali.</p>
+      <pre><code>:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --color-primary: #0b71e5;
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+}
+
+.btn {
+  background: var(--color-primary);
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--font-sans);
+}</code></pre>
+
+      <h3>Sass / Preprocessor vs CSS nativo</h3>
+      <ul>
+        <li>Sass fornisce logica, mixin, funzioni e modularità in fase di build (<code>@use</code>, <code>@forward</code>), ideale per progetti complessi.</li>
+        <li>Le variabili CSS sono runtime e permettono theming live (es. toggle dark mode).</li>
+        <li>Combinare: usare Sass per struttura e variabili di build, CSS vars per runtime themes.</li>
+      </ul>
+
+      <h3>Pattern di modularità</h3>
+      <ul>
+        <li>Organizza SCSS/stylesheet in: settings (variabili), tools (mixin/functions), generic (reset), base (tags), components (card, button), utilities.</li>
+        <li>Usa nomi chiari per i design tokens: <code>--spacing-xx</code>, <code>--color-accent</code>.</li>
+      </ul>
+
+      <h3>Theming con CSS vars</h3>
+      <pre><code>/* tema light */
+:root {
+  --bg: #fff;
+  --text: #111;
+}
+
+/* tema dark */
+.theme-dark {
+  --bg: #0b1220;
+  --text: #e6eef7;
+}
+
+/* uso */
+body { background: var(--bg); color: var(--text); }</code></pre>
+
+      <h3>Debugging e strumenti</h3>
+      <ul>
+        <li>DevTools: ispeziona variabili con pannello CSS (vedi valori calcolati).</li>
+        <li>Usa nomi coerenti e documentali per variabili (design tokens).</li>
+      </ul>
+
+      <div class="tip">Le CSS vars possono essere animate (alcuni browser) e cambiate via JS per transizioni di tema fluide: <code>document.documentElement.style.setProperty('--color-primary','#ff6b6b')</code>.</div>
+    </section>
+
+    <section aria-labelledby="examples-heading" id="examples-section">
+      <h2 id="examples-heading">Esempi pratici e piccoli esercizi</h2>
+
+      <div class="examples">
+        <div class="card">
+          <h3>1) Specificità: risolvi un conflitto</h3>
+          <pre><code>/* Conflitto */
+.card p { color: blue; }
+.featured .card p { color: red; }
+
+/* Soluzione consigliata: usa classi specifiche per lo stato */
+.card__text { color: blue; }
+.card--featured .card__text { color: red; }</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>2) Box model: calcolo pratico</h3>
+          <pre><code>.box {
+  width: 300px;
+  padding: 20px;
+  border: 2px solid #000;
+  box-sizing: border-box; /* width totale = 300 */
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>3) Flexbox: layout semplice</h3>
+          <pre><code>.toolbar {
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.toolbar .spacer { flex:1; }</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>4) Grid: gallery responsiva</h3>
+          <pre><code>.gallery {
+  display:grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap:12px;
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>5) Media query: mobile-first</h3>
+          <pre><code>.card { padding:12px; }
+@media (min-width: 768px) {
+  .card { padding:20px; }
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>6) Tipografia: fluid heading con clamp()</h3>
+          <pre><code>h1 {
+  font-size: clamp(1.5rem, 2.5vw + 1rem, 3rem);
+}</code></pre>
+        </div>
+
+        <div class="card">
+          <h3>7) Variabili: theme switch</h3>
+          <pre><code>/* CSS */
+:root { --bg:#fff; --text:#111; }
+.theme-dark { --bg:#111; --text:#f6f6f6; }
+
+/* JS (toggle) */
+document.documentElement.classList.toggle('theme-dark');</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <p>Fine guida dettagliata. Vuoi che trasformi questo file in una pagina interattiva con esempi live editabili (CodePen-like) o che lo aggiunga direttamente nel tuo repository? Se vuoi estendere con esercizi automatici o generare snippet SCSS corrispondenti dimmi come procedere.</p>
+    </footer>
+  </main>
+</body>
+</html>
