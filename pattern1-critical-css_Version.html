@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pattern consigliato: Critical CSS inline + preload + stylesheet</title>
+  <meta name="author" content="Stefanoo94">
+  <style>
+    /* Stili del documento (solo per la lettura del file HTML) */
+    :root { --max-width:900px; --muted:#666; --mono: Menlo, Monaco, "Courier New", monospace; }
+    body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; color:#222; line-height:1.55; margin:28px auto; max-width:var(--max-width); padding:0 20px; background:#fff; }
+    h1 { font-size:1.6rem; margin:0 0 6px 0; }
+    p.lead { color:var(--muted); margin-top:0; }
+    h2 { margin-top:20px; }
+    pre { background:#f6f8fa; padding:12px; border-radius:6px; overflow:auto; font-family:var(--mono); font-size:13px; }
+    code { font-family:var(--mono); }
+    ul { margin:8px 0 14px 20px; }
+    .note { background:#fff8c6; border-left:4px solid #ffd54f; padding:10px; margin:10px 0; }
+    .tip { background:#eef9ff; border-left:4px solid #0b71e5; padding:10px; margin:10px 0; }
+    footer { margin-top:28px; color:var(--muted); font-size:0.95rem; border-top:1px solid #eee; padding-top:12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Pattern raccomandato per CSS critico</h1>
+    <p class="lead">Per la maggior parte dei siti tradizionali (MPA/SSR), il pattern più bilanciato, robusto e portabile è il seguente.</p>
+  </header>
+
+  <section>
+    <h2>Sintesi del pattern</h2>
+    <ul>
+      <li>Inline del Critical CSS (solo l’essenziale per l'above‑the‑fold, idealmente &lt; ~14 KB)</li>
+      <li>Preload del CSS principale con <code>as="style"</code></li>
+      <li>Un normale <code>&lt;link rel="stylesheet"&gt;</code> per applicare il CSS completo (cacheable)</li>
+      <li>Preload dei webfont critici (<code>as="font"</code>, <code>type</code> e <code>crossorigin</code>) + <code>font-display: swap</code></li>
+      <li>Preconnect ai domini esterni critici (CDN, provider font)</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Perché questo è spesso il “miglior” pattern</h2>
+    <ul>
+      <li>Massimizza il primo rendering (FCP/LCP): l'utente vede subito uno stile coerente grazie al critical inline.</li>
+      <li>Preload avvia il download del CSS completo subito, così quando il parser incontra il tag stylesheet la risorsa è già pronta o in corso → applicazione rapida.</li>
+      <li>Mantiene il CSS completo cacheable e riutilizzabile (non tutto inline).</li>
+      <li>Compatibile con browser moderni e degrada facilmente su browser più vecchi (nessun JS obbligatorio).</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Quando preferire un altro pattern</h2>
+    <ul>
+      <li><strong>Onload pattern</strong> (<code>preload</code> + onload <code>this.rel='stylesheet'</code>): utile se vuoi applicare il CSS appena scaricato anche prima che il parser arrivi al tag; però dipende da JS e richiede fallback <code>&lt;noscript&gt;</code>. Possibili doppi download su browser molto vecchi.</li>
+      <li><strong>media="print" onload hack</strong>: carica non‑bloccante senza JS ma è meno diretto e talvolta più complesso.</li>
+      <li><strong>Solo inline</strong>: valido per pagine molto semplici o email-like, ma perde caching e aumenta payload per ogni pagina.</li>
+      <li><strong>SPA/APP client-side</strong>: meglio usare SSR o generare critical per ogni rotta per evitare FOUC/ritardi legati al JS.</li>
+      <li><strong>HTTP/2/3</strong>: preload mantiene valore per priorità fetch anche con multiplexing, ma i guadagni di latenza possono essere minori rispetto a HTTP/1.1.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Pratiche raccomandate dettagliate</h2>
+    <ol>
+      <li>Estrarre il critical CSS solo per l’above‑the‑fold e mantenerlo piccolo (strumenti: <code>critical</code>, <code>penthouse</code>, <code>critters</code>).</li>
+      <li>Inserire il critical inline nel <code>&lt;head&gt;</code> il prima possibile.</li>
+      <li>Aggiungere il preload prima del link stylesheet:
+        <pre><code>&lt;link rel="preload" href="/assets/main.css" as="style"&gt;
+&lt;link rel="stylesheet" href="/assets/main.css"&gt;</code></pre>
+      </li>
+      <li>Preload dei font critici:
+        <pre><code>&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+&lt;link rel="preload" href="/fonts/Inter.woff2" as="font" type="font/woff2" crossorigin&gt;
+
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.woff2') format('woff2');
+  font-display: swap;
+}</code></pre>
+      </li>
+      <li>Evitare di preloadare troppe risorse (tipicamente 1–3 preloads critici per pagina).</li>
+      <li>Fornire fallback <code>&lt;noscript&gt;</code> se si usa JS per applicare il CSS.</li>
+      <li>Versionare / fingerprintare <code>main.css</code> per cache busting e impostare cache-control lungo.</li>
+      <li>Misurare con Lighthouse (LCP, FCP), WebPageTest (waterfall), Chrome DevTools (priority) e controllare la console per warning (“preload not used” o doppio fetch).</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Snippet raccomandato (riassunto)</h2>
+    <pre><code>&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;
+
+  &lt;!-- Critical CSS inline (minimo) --&gt;
+  &lt;style&gt;/* critical CSS: reset + header + hero */&lt;/style&gt;
+
+  &lt;!-- Hints per performance --&gt;
+  &lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;
+  &lt;link rel="preload" href="/fonts/Inter.woff2" as="font" type="font/woff2" crossorigin&gt;
+  &lt;link rel="preload" href="/assets/main.css" as="style"&gt;
+
+  &lt;!-- Applica il CSS completo (cacheable) --&gt;
+  &lt;link rel="stylesheet" href="/assets/main.css"&gt;
+&lt;/head&gt;</code></pre>
+  </section>
+
+  <section>
+    <h2>Checklist veloce per decidere</h2>
+    <ul>
+      <li>Page simple/static + small CSS → puoi inline più, forse evitare preload.</li>
+      <li>Page con CSS grande e above‑the‑fold importante → inline critical + preload + stylesheet (pattern raccomandato).</li>
+      <li>SPA con rotte multiple → genera critical per rotta (SSR o build-time critical extraction) + preload adeguati.</li>
+      <li>Se hai molti terzi (font/CDN/API) → aggiungi preconnect ai domini critici.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Metriche che confermano la bontà del pattern</h2>
+    <ul>
+      <li>LCP diminuisce o rimane stabile mentre FCP migliora.</li>
+      <li>Nessun warning “preloaded resource not used”.</li>
+      <li>Nessun FOUC visibile sui device reali.</li>
+      <li>Waterfall: il fetch di <code>main.css</code> inizia prima o immediatamente dopo il parsing dell'head ed è già in corso quando arriva il link stylesheet.</li>
+    </ul>
+  </section>
+
+  <footer>
+    <p class="note">Nota: questo file è un riassunto operativo. Se vuoi, posso generare una versione più estesa, creare il file nel tuo repository (servono permessi e repo info), oppure analizzare l'head della tua pagina per suggerire il critical CSS effettivo.</p>
+  </footer>
+</body>
+</html>
