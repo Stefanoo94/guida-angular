@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>JavaScript — Spiegazione estremamente dettagliata dei primi 7 argomenti</title>
+  <meta name="description" content="Approfondimento avanzato e pratico sui primi 7 argomenti fondamentali di JavaScript: embedding, DOM, eventi, scope/hoisting/closure, asincronia (callback/promise/async), Fetch API e moduli ES.">
+  <meta name="author" content="Stefanoo94">
+  <style>
+    :root{
+      --max-width:1080px;
+      --accent:#0b71e5;
+      --muted:#666;
+      --bg:#f7fbff;
+      --card:#fff;
+      --mono: Menlo, Monaco, "Courier New", monospace;
+      --radius:10px;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color:#111;
+      background:linear-gradient(180deg,var(--bg),#ffffff 60%);
+      padding:28px 16px;
+      display:flex;
+      justify-content:center;
+    }
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+      background:var(--card);
+      box-shadow:0 10px 36px rgba(10,30,60,0.06);
+      border-radius:var(--radius);
+      padding:28px;
+      box-sizing:border-box;
+      line-height:1.55;
+    }
+    header h1{margin:0;font-size:1.5rem;}
+    header p{margin:6px 0 0;color:var(--muted);}
+    nav{margin-top:14px;}
+    nav a{margin-right:8px;color:var(--accent);text-decoration:none;font-weight:600}
+    section{margin-top:20px;}
+    h2{margin:0 0 8px 0;font-size:1.15rem;color:#0b2b45;}
+    h3{margin:10px 0 6px 0;font-size:1rem;color:#15324a;}
+    p.lead{margin:6px 0 12px 0;color:var(--muted);}
+    pre{background:#0f1720;color:#e6eef7;padding:14px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.45;}
+    code{font-family:var(--mono);background:rgba(11,113,229,0.04);padding:2px 6px;border-radius:4px;}
+    ul{margin:8px 0 12px 20px;}
+    ol{margin:8px 0 12px 20px;}
+    .note{background:#fff8c6;border-left:4px solid #ffd54f;padding:10px;border-radius:8px;margin:12px 0;color:#6a5a00;}
+    .tip{background:#eef9ff;border-left:4px solid var(--accent);padding:10px;margin:12px 0;border-radius:8px;}
+    .examples{display:grid;grid-template-columns:1fr;gap:12px;margin-top:10px;}
+    .card{background:#fbfeff;border:1px solid #eef5fb;padding:12px;border-radius:8px;}
+    footer{margin-top:26px;border-top:1px solid #eee;padding-top:12px;color:var(--muted);font-size:0.95rem;}
+    @media (min-width:900px){ .examples{grid-template-columns:repeat(2,1fr);} }
+    @media print{ body{background:#fff;padding:0;} .wrap{box-shadow:none;border-radius:0;padding:12px;} nav, footer {display:none;} }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-labelledby="title">
+    <header>
+      <div>
+        <h1 id="title">JavaScript — Dettaglio avanzato sui primi 7 argomenti</h1>
+        <p class="lead">Spiegazioni tecniche, esempi pratici, anti-pattern, debugging e consigli per produzione su: embedding, DOM, eventi, scope/hoisting/closure, asincronia (callback/promise/async), Fetch API e moduli ES.</p>
+      </div>
+    </header>
+
+    <nav aria-label="Sezioni">
+      <a href="#embedding">1 Embedding & Script placement</a>
+      <a href="#dom">2 DOM — selezione e manipolazione</a>
+      <a href="#events">3 Eventi — gestione avanzata</a>
+      <a href="#scope">4 Scope, hoisting, closure</a>
+      <a href="#async">5 Asincronia (Callback, Promise, async/await)</a>
+      <a href="#fetch">6 Fetch API approfondito</a>
+      <a href="#modules">7 Moduli (ES Modules)</a>
+    </nav>
+
+    <!-- 1 -->
+    <section id="embedding">
+      <h2>1) Embedding & Script placement (dettagli)</h2>
+
+      <h3>Tipi di inclusione e loro effetti</h3>
+      <ul>
+        <li>&lt;script src="...">&lt;/script> (senza attributi): download sincrono ed esecuzione bloccante. Blocca parsing HTML fino a termine.</li>
+        <li>&lt;script defer src="...">&lt;/script>: download parallelo; esecuzione dopo il parsing del documento, mantenendo ordine degli script. Ideale per script che dipendono dal DOM.</li>
+        <li>&lt;script async src="...">&lt;/script>: download parallelo; esecuzione appena pronto, ordine non garantito. Ottimo per script indipendenti (analytics, tag).</li>
+        <li>&lt;script type="module" src="...">&lt;/script>: comportamento simile a defer, supporta import/export; esegue in module scope (strict) e permette import dinamico.</li>
+        <li>Inline scripts: eseguiti subito dove appaiono; utile per initial data injection o config (ma attenti a CSP/nons), aumenta il HTML payload e impedisce caching separato.</li>
+      </ul>
+
+      <h3>Regole pratiche</h3>
+      <ol>
+        <li>Metti script non critici con <code>defer</code> o alla fine del body per non bloccare il primo paint.</li>
+        <li>Usa <code>async</code> solo per risorse indipendenti; mai per script che devono eseguire in ordine.</li>
+        <li>Preferisci <code>type="module"</code> per nuovo codice: supporto moderno, scope modulare, import dinamico.</li>
+        <li>Per critical inline config (es. initial state) riduci l'output e usa hashing o CSP con nonce per sicurezza.</li>
+      </ol>
+
+      <h3>Esempi e comparazioni</h3>
+      <pre><code>&lt;!-- blocking (evitare per grandi script) --&gt;
+&lt;script src="/js/vendor.js"&gt;&lt;/script&gt;
+
+&lt;!-- defer: scarica in parallelo, esegue dopo il parsing (mantiene ordine) --&gt;
+&lt;script src="/js/main.js" defer&gt;&lt;/script&gt;
+
+&lt;!-- async: scarica in parallelo, esegue appena pronto (ordine non garantito) --&gt;
+&lt;script src="/js/analytics.js" async&gt;&lt;/script&gt;
+
+&lt;!-- module: supporta import/export, defer implicito --&gt;
+&lt;script type="module" src="/js/app.js"&gt;&lt;/script&gt;</code></pre>
+
+      <h3>Performance: critical JS vs lazy</h3>
+      <p>Riduci il JS iniziale (JS bundle size) con code-splitting e dynamic import. Carica subito solo il codice necessario per il primo render; lazy-load componenti o funzionalità non critiche (widgets, editors, charts) via import() dinamico.</p>
+
+      <h3>Debugging & strumenti</h3>
+      <ul>
+        <li>Usa Chrome DevTools → Network: verifica ordine e timing di download/esecuzione.</li>
+        <li>Performance panel → filmstrip e Event Log per capire come lo script influisce sul main thread.</li>
+      </ul>
+
+      <div class="note">Se fornisci dati iniziali dal server al client, serializza piccoli payload direttamente in un script JSON inline e poi elimina questa pratica per payload grandi (usa endpoint REST/GraphQL o JSON file cacheable).</div>
+    </section>
+
+    <!-- 2 -->
+    <section id="dom">
+      <h2>2) DOM — selezione e manipolazione (dettagli)</h2>
+
+      <h3>APIs principali e loro caratteristiche</h3>
+      <ul>
+        <li><code>document.getElementById(id)</code>: veloce, restituisce un elemento o null.</li>
+        <li><code>document.getElementsByClassName()</code> e <code>getElementsByTagName()</code>: HTMLCollection "live" — si aggiornano quando il DOM cambia.</li>
+        <li><code>document.querySelector()</code> / <code>querySelectorAll()</code>: supportano selettori CSS; <code>querySelectorAll</code> ritorna NodeList statica (non live).</li>
+        <li><code>element.closest(selector)</code>: risalire a un antenato matching; utile per delegation.</li>
+        <li>Element properties: <code>textContent</code> (sicuro), <code>innerText</code> (layout-aware), <code>innerHTML</code> (markup — XSS risk).</li>
+      </ul>
+
+      <h3>Creare, inserire, rimuovere nodi efficientemente</h3>
+      <ul>
+        <li>Creazione: <code>document.createElement()</code>, impostare classi/attributi, poi appendere al DOM.</li>
+        <li>Batch insert: per molte operazioni, usa <code>DocumentFragment</code> o costruisci stringhe HTML e usa <code>template</code> per ridurre reflow.</li>
+        <li>Rimozione: <code>el.remove()</code> o <code>parent.removeChild(el)</code>.</li>
+      </ul>
+
+      <h3>Live collections vs static — attenzione</h3>
+      <pre><code>const live = document.getElementsByClassName('item'); // live
+const static = document.querySelectorAll('.item');         // static
+console.log(live.length, static.length);
+parent.appendChild(newItem);
+console.log(live.length, static.length); // live cambia, static no</code></pre>
+
+      <h3>Accessibilità e DOM</h3>
+      <ul>
+        <li>Manipola attributi ARIA con <code>setAttribute</code> o <code>aria-*</code> helpers.</li>
+        <li>Gestisci focus: quando apri un dialogo sposta il focus al primo elemento interattivo e ritorna al trigger al close.</li>
+      </ul>
+
+      <h3>Best practice</h3>
+      <ul>
+        <li>Preferisci aggiornare classList piuttosto che inline styles per mantenere separazione di responsabilità.</li>
+        <li>Non leggere/riscrivere il layout in modo alternato (es. leggere offsetHeight poi impostare style) in loop: provoca forced reflow. Batch reads e writes separatamente.</li>
+        <li>Per dataset, usa elementi <code>data-*</code> e <code>dataset</code> per trasmettere dati dal markup al JS.</li>
+      </ul>
+
+      <div class="note">Esempio di forced reflow: leggere <code>offsetWidth</code> dentro un loop mentre si cambia lo stile provoca ri-calcolo del layout per ogni iterazione. Usa <code>requestAnimationFrame</code> o raggruppa le modifiche.</div>
+    </section>
+
+    <!-- 3 -->
+    <section id="events">
+      <h2>3) Eventi — gestione avanzata</h2>
+
+      <h3>Event model: bubbling vs capturing</h3>
+      <p>Event flow ha tre fasi: capturing (top → target), target, bubble (target → top). Default addEventListener usa bubbling; puoi passare <code>{ capture: true }</code> per listener in fase di capture.</p>
+
+      <h3>Event delegation</h3>
+      <p>Attacca un listener sul contenitore comune per gestire eventi di molti elementi dinamici — migliora performance e semplifica gestione dinamica.</p>
+      <pre><code>const list = document.querySelector('#list');
+list.addEventListener('click', (e) =&gt; {
+  const item = e.target.closest('.item');
+  if (!item) return;
+  // usa dataset o attributi per capire l'azione
+});</code></pre>
+
+      <h3>Options: passive, once, capture</h3>
+      <ul>
+        <li><code>passive:true</code> indica che il listener non chiamerà <code>preventDefault()</code> — migliora performance per scroll/touch.</li>
+        <li><code>once:true</code> rimuove automaticamente il listener dopo la prima esecuzione.</li>
+        <li><code>capture:true</code> registra in fase di capturing invece che bubble.</li>
+      </ul>
+
+      <h3>Memory leaks e cleanup</h3>
+      <ul>
+        <li>Rimuovi listener quando un componente è distrutto (<code>removeEventListener</code>), specialmente in SPA per evitare leak/multipli binding.</li>
+        <li>Se usi closures come handler, conserva la funzione referenziabile per poterla rimuovere successivamente.</li>
+      </ul>
+
+      <h3>Performance tips</h3>
+      <ul>
+        <li>Debounce (input/resize) e throttle (scroll) a seconda del caso d'uso.</li>
+        <li>Per eventi di scrolling pesante, usa <code>passive:true</code> e read-only handlers; evita DOM writes frequenti senza batching.</li>
+      </ul>
+
+      <h3>Esempio: listener con options</h3>
+      <pre><code>element.addEventListener('touchmove', onMove, { passive: true });
+window.addEventListener('resize', debounce(onResize, 150));</code></pre>
+    </section>
+
+    <!-- 4 -->
+    <section id="scope">
+      <h2>4) Scope, hoisting e closure (dettagli)</h2>
+
+      <h3>Scope e visibilità</h3>
+      <ul>
+        <li><code>var</code> è function-scoped; <code>let</code> e <code>const</code> sono block-scoped.</li>
+        <li>Preferisci <code>const</code> per binding che non verranno riassegnati, <code>let</code> per variabili mutate.</li>
+      </ul>
+
+      <h3>Hoisting (cosa avviene davvero)</h3>
+      <p>Le dichiarazioni vengono "hoisted": per <code>var</code> la variabile è creata e inizializzata a <code>undefined</code> prima dell'esecuzione; per <code>let/const</code> l'identificatore è registrato ma non inizializzato (Temporal Dead Zone) — accesso prima della dichiarazione genera ReferenceError.</p>
+      <pre><code>console.log(a); // undefined
+var a = 2;
+
+console.log(b); // ReferenceError
+let b = 3;</code></pre>
+
+      <h3>Closure: definizione e pattern</h3>
+      <p>Una closure è una funzione che cattura variabili dal suo ambiente lessicale. Permette encapsulation e stato privato.</p>
+      <pre><code>function makeCounter() {
+  let count = 0;
+  return function() { return ++count; };
+}
+const c = makeCounter();
+console.log(c()); // 1</code></pre>
+
+      <h3>Use cases utili</h3>
+      <ul>
+        <li>Factory functions, moduli privati, data hiding.</li>
+        <li>Memoization e caching (closure mantiene la cache).</li>
+        <li>Event handlers che devono "ricordare" stato locale.</li>
+      </ul>
+
+      <h3>Common pitfalls</h3>
+      <ul>
+        <li>Loop + closure problem (var in for): usare <code>let</code> o IIFE per catturare il valore corrente.</li>
+        <li>Memory leaks se closure trattiene grandi strutture e non vengono rilasciate.</li>
+      </ul>
+
+      <pre><code>// Problema con var
+for (var i=0;i&lt;3;i++){
+  setTimeout(()=> console.log(i), 100); // stampa 3,3,3
+}
+// Soluzione con let
+for (let i=0;i&lt;3;i++){
+  setTimeout(()=> console.log(i), 100); // 0,1,2
+}</code></pre>
+
+      <div class="tip">Closure è potente ma va usata consapevolmente: evita di tenere in closure riferimenti a DOM grandi o oggetti pesanti se non necessari.</div>
+    </section>
+
+    <!-- 5 -->
+    <section id="async">
+      <h2>5) Asincronia — Callback, Promise, async/await (dettagli)</h2>
+
+      <h3>Event loop, microtask vs macrotask</h3>
+      <p>Capire l'event loop è cruciale: il call stack esegue task; le microtasks (Promises) vengono eseguite immediatamente dopo la task corrente e prima della prossima macrotask (setTimeout). Questo spiega ordini di esecuzione non ovvi.</p>
+      <pre><code>console.log('script start');
+
+setTimeout(() =&gt; console.log('timeout'), 0);
+
+Promise.resolve().then(() =&gt; console.log('promise'));
+
+console.log('script end');
+// Output: script start, script end, promise, timeout</code></pre>
+
+      <h3>Callback — problemi e antipattern</h3>
+      <ul>
+        <li>Callback-hell: nidificazione profonda rende codice difficile da leggere e mantenere.</li>
+        <li>Gestione degli errori: con callback spesso si usa pattern (err, result) per uniformare error handling.</li>
+      </ul>
+      <pre><code>fs.readFile(path, (err, data) =&gt; {
+  if (err) return cb(err);
+  fs.writeFile(dest, data, (err) =&gt; {
+    if (err) return cb(err);
+    // ... altri callback
+  });
+});</code></pre>
+
+      <h3>Promise — pattern avanzati</h3>
+      <ul>
+        <li><code>Promise.all([...])</code>: fallisce se una promise reject; ritorna array dei risultati se tutte risolvono.</li>
+        <li><code>Promise.allSettled([...])</code>: attende tutte e restituisce lo stato di ciascuna (utile quando non vuoi fallire tutto).</li>
+        <li><code>Promise.race([...])</code>: ritorna il valore o errore della prima promise risolta/reject.</li>
+        <li><code>Promise.any([...])</code>: risolve con la prima promise che risolve, reject se tutte reject (es. uso fallbacks).</li>
+      </ul>
+      <pre><code>// esempio allSettled
+const ps = [p1,p2,p3];
+const results = await Promise.allSettled(ps);
+results.forEach(r =&gt; {
+  if (r.status === 'fulfilled') handle(r.value);
+  else console.error('failed', r.reason);
+});</code></pre>
+
+      <h3>async/await — best practices</h3>
+      <ul>
+        <li>Usa try/catch per error handling quando usi await.</li>
+        <li>Per performance, esegui promise indipendenti in parallelo (non fare await uno dopo l'altro se non dipendenti):</li>
+      </ul>
+      <pre><code>// Sbagliato (serial)
+const a = await fetch(urlA);
+const b = await fetch(urlB);
+
+// Corretto (parallelo)
+const [pa, pb] = [fetch(urlA), fetch(urlB)];
+const [ra, rb] = await Promise.all([pa, pb]);</code></pre>
+
+      <h3>Retry / backoff</h3>
+      <p>Per richieste unreliable, implementa retry con backoff esponenziale e jitter:</p>
+      <pre><code>async function retry(fn, tries=3) {
+  let attempt = 0;
+  while (attempt &lt; tries) {
+    try { return await fn(); }
+    catch (err) {
+      attempt++;
+      const wait = Math.pow(2, attempt) * 100 + Math.random()*100;
+      await new Promise(r =&gt; setTimeout(r, wait));
+      if (attempt === tries) throw err;
+    }
+  }
+}</code></pre>
+
+      <div class="note">Non bloccare il main thread con operazioni pesanti; usa Web Workers se hai calcoli intensi.</div>
+    </section>
+
+    <!-- 6 -->
+    <section id="fetch">
+      <h2>6) Fetch API — approfondimenti pratici</h2>
+
+      <h3>Uso base e pattern comuni</h3>
+      <pre><code>// GET JSON
+const res = await fetch('/api/items');
+if (!res.ok) throw new Error(res.statusText);
+const data = await res.json();</code></pre>
+
+      <h3>Gestione headers, credentials e CORS</h3>
+      <ul>
+        <li><code>headers</code>: passare <code>Accept</code>, <code>Content-Type</code>, token auth (Authorization: Bearer ...)</li>
+        <li><code>credentials: 'include'| 'same-origin' | 'omit'</code> per cookie cross-site</li>
+        <li>CORS: server deve inviare <code>Access-Control-Allow-Origin</code> e altri header se richiesto; fonts/media cross-origin richiedono <code>crossorigin</code> e CORS appropriato.</li>
+      </ul>
+      <pre><code>fetch('/api', {
+  method: 'POST',
+  headers: {'Content-Type':'application/json', 'Authorization':'Bearer token'},
+  credentials: 'same-origin',
+  body: JSON.stringify(payload)
+});</code></pre>
+
+      <h3>Timeout e AbortController</h3>
+      <pre><code>const controller = new AbortController();
+const timeout = setTimeout(()=> controller.abort(), 5000);
+
+try {
+  const res = await fetch('/api/slow', { signal: controller.signal });
+  // ...
+} catch (e) {
+  if (e.name === 'AbortError') console.warn('aborted');
+} finally {
+  clearTimeout(timeout);
+}</code></pre>
+
+      <h3>Stream response e response.clone</h3>
+      <p>Response è uno stream; puoi leggere body come stream per grandi payload (lettura chunked) oppure clonare la response per ri-usarla (es. leggere sia text che json):</p>
+      <pre><code>const r = await fetch('/file');
+const r1 = r.clone();
+const blob = await r.blob();
+const text = await r1.text();</code></pre>
+
+      <h3>Caching e strategie</h3>
+      <ul>
+        <li>Cache-control sul server per caching browser/edge.</li>
+        <li>In-app caching: usare indexedDB o Cache API (service worker) per offline e performance.</li>
+        <li>Stale-while-revalidate: mostra dati cached e in background aggiorna con fetch.</li>
+      </ul>
+
+      <h3>Errore handling robusto</h3>
+      <ul>
+        <li>Controlla <code>res.ok</code> invece di aspettarti solo <code>res.json()</code>.</li>
+        <li>Gestisci JSON-malformed con try/catch separate (res.json può throw).</li>
+      </ul>
+
+      <pre><code>async function safeFetch(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  try {
+    return await res.json();
+  } catch (e) {
+    throw new Error('Invalid JSON');
+  }
+}</code></pre>
+    </section>
+
+    <!-- 7 -->
+    <section id="modules">
+      <h2>7) Moduli (ES Modules) — dettagli pratici</h2>
+
+      <h3>Import/export di base</h3>
+      <pre><code>// math.js
+export function sum(a,b){ return a+b; }
+export default function mul(a,b){ return a*b; }
+
+// app.js
+import mul, { sum } from './math.js';
+console.log(sum(1,2), mul(2,3));</code></pre>
+
+      <h3>Static vs dynamic import</h3>
+      <ul>
+        <li><code>import ... from '...'</code> è statico e consente al bundler di analizzare dipendenze e tree-shaking.</li>
+        <li><code>const mod = await import('./module.js')</code> è dinamico: utile per lazy-loading o per browser-native code-splitting.</li>
+      </ul>
+
+      <h3>Module scope e side-effects</h3>
+      <p>I moduli sono eseguiti una sola volta (singleton). Se un modulo fa side-effects all'import, questi vengono eseguiti alla prima importazione. Progettare moduli senza side-effects non necessari rende l'app più prevedibile.</p>
+
+      <h3>Defer implicito e compatibilità</h3>
+      <p>&lt;script type="module"&gt; è differito implicitamente — non blocca il parsing come script classici. Tuttavia, per compatibilità con browser legacy potresti bisogno di bundling/transpiling (Babel/Rollup/Vite).</p>
+
+      <h3>Top-level await</h3>
+      <p>In moduli moderni è possibile usare top-level await (attendere fetch/import all'avvio), ma attenzione a bloccare l'esecuzione del modulo importatore.</p>
+
+      <h3>Best practices per i moduli</h3>
+      <ul>
+        <li>Preferisci moduli piccoli con singola responsabilità.</li>
+        <li>Evita side-effects non necessari; esplicita init() se serve inizializzazione.</li>
+        <li>Usa named exports per utilità e default exports per il "main" del modulo (coerenza nel progetto).</li>
+        <li>Per librerie pubbliche, pensa a ESM + CJS build per compatibilità.</li>
+      </ul>
+
+      <div class="note">Bundler moderni (Vite/Rollup/Webpack) risolvono compatibilità, code-splitting e tree-shaking. In produzione preferisci un build step che generi bundle ottimizzati e sourcemap separati per il debug.</div>
+    </section>
+
+    <section id="exercises">
+      <h2>Esercizi proposti (pratici)</h2>
+      <ol>
+        <li>Script placement: crea 3 file script (a.js log 'A', b.js log 'B', c.js log 'C'). Testa con diversi attributi (none, defer, async, module) e analizza ordine di esecuzione in Network/Console.</li>
+        <li>DOM + delegation: crea una lista dinamica con 1000 elementi; implementa aggiunta/rimozione con event delegation e misura performance rispetto a binding individuale.</li>
+        <li>Closure: implementa una factory <code>makeCounter(start)</code> con metodi <code>inc</code>, <code>dec</code>, <code>value</code>; aggiungi protezione per evitare overflow e test con più istanze.</li>
+        <li>Asincronia: scrivi una funzione che fetchi 3 endpoint in parallelo, usa <code>Promise.allSettled</code> per mostrare risultati e errori senza interrompere l'esecuzione.</li>
+        <li>Fetch avanzato: implementa un fetch con abort (timeout), retry con backoff e caching semplice in memory.</li>
+        <li>Moduli: crea un modulo che esporta helper per DOM (createEl, mount) e importalo dinamicamente quando un bottone viene premuto.</li>
+      </ol>
+    </section>
+
+    <footer>
+      <p class="note">Questa guida è pensata per darti sia la teoria sia esempi pratici e pattern da usare in produzione. Posso trasformarla in una pagina interattiva con snippet eseguibili, generare file d'esempio oppure aggiungerla al tuo repository. Dimmi cosa preferisci.</p>
+    </footer>
+  </main>
+</body>
+</html>
