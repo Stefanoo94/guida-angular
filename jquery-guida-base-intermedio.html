@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Guida jQuery — Base / Intermedio (IT)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+          integrity="sha256-o88AwfM1pYQk3+1hF4k2s3rVQ5qk1K/6b6Y5YkP4b6U="
+          crossorigin="anonymous"></script>
+  <style>
+    :root{
+      --bg:#f6f8fb; --card:#fff; --muted:#6b7280; --accent:#2563eb;
+      --code-bg:#0b1220; --code-fg:#dbeafe;
+    }
+    body{font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#0f172a; padding:30px;}
+    .container{max-width:1000px;margin:0 auto;background:var(--card);padding:28px;border-radius:10px;box-shadow:0 10px 30px rgba(2,6,23,0.08);}
+    h1{margin:0 0 8px 0;}
+    p.lead{color:var(--muted);margin-top:0;}
+    nav.toc{margin:18px 0;padding:12px;background:#f1f5f9;border-radius:8px;}
+    nav.toc a{display:inline-block;margin:6px 10px 6px 0;color:var(--accent);text-decoration:none;}
+    section{margin-top:20px;}
+    pre{background:var(--code-bg);color:var(--code-fg);padding:12px;border-radius:8px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Roboto Mono,"Courier New",monospace;font-size:13px;}
+    code{background:#eef2ff;padding:2px 6px;border-radius:6px;font-size:90%;}
+    .example{border-left:4px solid #c7d2fe;padding:12px;margin:12px 0;background:#fbfdff;border-radius:6px;}
+    .small{font-size:90%;color:var(--muted);}
+    .btn{display:inline-block;padding:6px 10px;background:var(--accent);color:#fff;border-radius:6px;text-decoration:none;}
+    details{margin:10px 0;padding:10px;border-radius:8px;background:#f8fafc;}
+    summary{cursor:pointer;font-weight:600;}
+    table{width:100%;border-collapse:collapse;margin-top:8px;}
+    th,td{padding:8px;border-bottom:1px solid #eef2f7;text-align:left;}
+    .hint{background:#fffbeb;border-left:4px solid #f59e0b;padding:10px;border-radius:6px;}
+    footer{margin-top:28px;color:var(--muted);font-size:90%;}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Guida jQuery — Base / Intermedio</h1>
+    <p class="lead">Guida in italiano con esempi pronti da copiare. Include concetti base, intermedi, esempi pratici e piccole esercitazioni con soluzioni.</p>
+
+    <nav class="toc" aria-label="Indice">
+      <strong>Indice:</strong>
+      <a href="#intro">Introduzione</a>
+      <a href="#setup">Setup</a>
+      <a href="#dom-ready">DOM ready</a>
+      <a href="#selettori">Selettori & Manipolazione DOM</a>
+      <a href="#eventi">Eventi & Delegation</a>
+      <a href="#traversing">Traversing (navigazione)</a>
+      <a href="#effetti">Effetti & Animazioni</a>
+      <a href="#ajax">AJAX & Deferred</a>
+      <a href="#plugin">Creare un plugin</a>
+      <a href="#bestpractices">Buone pratiche</a>
+      <a href="#esempi">Esempi & Esercizi</a>
+    </nav>
+
+    <section id="intro">
+      <h2>Introduzione</h2>
+      <p>jQuery è una libreria JavaScript che semplifica selezione elementi, manipolazione del DOM, gestione eventi, animazioni e chiamate AJAX con un API semplice e cross-browser. Ideale per progetti legacy, prototipi o quando si vuole scrivere codice conciso.</p>
+    </section>
+
+    <section id="setup">
+      <h2>Setup</h2>
+      <p class="small">Tre modi principali per usare jQuery:</p>
+      <ul>
+        <li>CDN (rapido): inserire il tag <code>&lt;script src="https://code.jquery.com/jquery-3.x.x.min.js"&gt;&lt;/script&gt;</code></li>
+        <li>File locale: scaricare e includere <code>jquery.min.js</code></li>
+        <li>npm (con bundler): <code>npm install jquery</code> e <code>import $ from "jquery"</code></li>
+      </ul>
+
+      <div class="example">
+        <strong>Esempio (HTML minimo con CDN):</strong>
+        <pre>&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;script src="https://code.jquery.com/jquery-3.6.4.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;script&gt;
+    $(function(){ console.log("jQuery pronto"); });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+    </section>
+
+    <section id="dom-ready">
+      <h2>DOM ready</h2>
+      <p>Usa <code>$(document).ready()</code> o lo shorthand <code>$(function(){})</code> per eseguire codice quando il DOM è pronto.</p>
+      <pre>$(document).ready(function(){
+  // codice qui
+});
+// shorthand
+$(function(){
+  // codice qui
+});</pre>
+    </section>
+
+    <section id="selettori">
+      <h2>Selettori &amp; Manipolazione del DOM</h2>
+      <p>jQuery usa selettori simili a CSS: <code>$("#id")</code>, <code>$(".classe")</code>, <code>$("tag")</code>.</p>
+
+      <h3>Leggere/Impostare testo e HTML</h3>
+      <pre>// leggere testo
+var text = $("#mio").text();
+
+// impostare testo
+$("#mio").text("Ciao!");
+
+// leggere HTML
+var html = $("#mio").html();
+
+// impostare HTML (attenzione a XSS)
+$("#mio").html("&lt;strong&gt;Importante&lt;/strong&gt;");</pre>
+
+      <h3>Attributi e proprietà</h3>
+      <pre>// attributi
+var href = $("a").attr("href");
+$("img").attr("alt", "descrizione");
+
+// proprietà (checked, disabled)
+$("input[type=checkbox]").prop("checked", true);</pre>
+
+      <h3>Inserire/Rimuovere elementi</h3>
+      <pre>$("&lt;p&gt;Nuovo&lt;/p&gt;").appendTo("body");
+$("ul").prepend("&lt;li&gt;Primo&lt;/li&gt;");
+$("#elem").after("&lt;div&gt;Dopo&lt;/div&gt;");
+$("#elem").remove();
+$("#elem").empty();</pre>
+
+      <h3>Chaining</h3>
+      <pre>// catena di metodi
+$("#box").addClass("active").css("color","red").slideDown();</pre>
+    </section>
+
+    <section id="eventi">
+      <h2>Eventi &amp; Delegation</h2>
+      <p>Metodi: <code>.on()</code>, <code>.off()</code>, shorthand come <code>.click()</code>.</p>
+
+      <pre>// bind
+$("#btn").on("click", function(e){
+  e.preventDefault();
+  alert("clic");
+});
+
+// shorthand
+$("#btn").click(function(){ /* ... */ });
+
+// rimuovere handler
+$("#btn").off("click");</pre>
+
+      <h3>Event delegation (per elementi dinamici)</h3>
+      <p>Assegna l'handler a un elemento genitore e specifica il selettore dei figli.</p>
+      <pre>// gestione click su li anche se aggiunti dopo
+$("#list").on("click", "li", function(e){
+  console.log($(this).text());
+});</pre>
+
+      <h3>Namespace degli eventi</h3>
+      <pre>// utile per rimuovere gruppi di handler
+$el.on("click.myApp", handler);
+$el.off(".myApp"); // rimuove tutti gli handler con namespace myApp</pre>
+
+      <h3>Proprietà dell'evento</h3>
+      <pre>function handler(e){
+  e.preventDefault(); // ferma comportamento default
+  e.stopPropagation(); // ferma propagazione
+  console.log(e.type, e.target);
+}</pre>
+    </section>
+
+    <section id="traversing">
+      <h2>Traversing (navigazione nel DOM)</h2>
+      <p>Metodi comuni: <code>parent()</code>, <code>parents()</code>, <code>children()</code>, <code>find()</code>, <code>closest()</code>, <code>siblings()</code>, <code>next()</code>, <code>prev()</code>.</p>
+      <pre>var $parent = $("#item").parent();
+var $form = $("#input").closest("form");
+var $children = $("#container").children();
+var $found = $("#container").find(".active");</pre>
+    </section>
+
+    <section id="effetti">
+      <h2>Effetti &amp; Animazioni</h2>
+      <p>Metodi semplici: <code>show/hide/toggle</code>, <code>fadeIn/fadeOut</code>, <code>slideUp/slideDown</code>, <code>animate</code>.</p>
+      <pre>// fade
+$("#box").fadeIn(200).fadeOut(200);
+
+// slide
+$("#panel").slideToggle(300);
+
+// animate proprietà CSS numeriche
+$("#box").animate({ left: "200px", opacity: 0.6 }, 400, "swing", function(){
+  console.log("fine animazione");
+});</pre>
+      <p class="small">Nota: per performance preferire trasformazioni CSS (translate) piuttosto che manipolare left/top frequentemente.</p>
+    </section>
+
+    <section id="ajax">
+      <h2>AJAX &amp; Deferred (intermedio)</h2>
+      <p>Metodi rapidi: <code>$.get</code>, <code>$.post</code>, <code>$.getJSON</code>, e il più completo <code>$.ajax</code>. Le chiamate restituiscono un oggetto <code>jqXHR</code> che supporta <code>.done</code>, <code>.fail</code>, <code>.always</code>.</p>
+
+      <pre>// esempio $.ajax
+$.ajax({
+  url: "/api/items",
+  method: "GET",
+  dataType: "json",
+  data: { page: 1 }
+})
+.done(function(data){
+  console.log("dati", data);
+})
+.fail(function(xhr, status, err){
+  console.error("errore", status, err);
+})
+.always(function(){
+  console.log("completed");
+});</pre>
+
+      <h3>Combinare chiamate con $.when</h3>
+      <pre>// attendi più chiamate
+$.when($.ajax("/a"), $.ajax("/b"))
+ .done(function(aRes, bRes){
+   // aRes e bRes sono array [data, statusText, jqXHR]
+   console.log(aRes[0], bRes[0]);
+ });</pre>
+
+      <h3>Impostazioni globali</h3>
+      <pre>// esempio per CSRF o timeout globale
+$.ajaxSetup({
+  headers: { "X-CSRF-Token": $('meta[name="csrf-token"]').attr('content') },
+  timeout: 8000
+});</pre>
+    </section>
+
+    <section id="plugin">
+      <h2>Creare un plugin jQuery (intermedio)</h2>
+      <p>Pattern base per estendere <code>$.fn</code> mantenendo chaining e sicurezza.</p>
+      <pre>(function($){
+  $.fn.highlight = function(options){
+    var settings = $.extend({ color: "yellow", duration: 300 }, options);
+    return this.each(function(){
+      var $el = $(this);
+      $el.css("background-color", settings.color);
+      setTimeout(function(){ $el.css("background-color", ""); }, settings.duration);
+    });
+  };
+})(jQuery);
+
+// Uso:
+$(".note").highlight({ color: "#c7f9cc", duration: 600 });</pre>
+    </section>
+
+    <section id="bestpractices">
+      <h2>Buone pratiche e performance</h2>
+      <ul>
+        <li>Cache dei selettori riutilizzati: <code>var $items = $(".item");</code></li>
+        <li>Event delegation per elementi dinamici invece di bind multipli</li>
+        <li>Minimizzare manipolazioni DOM: costruire markup in memoria e appendere una sola volta</li>
+        <li>Preferire <code>.prop()</code> per proprietà DOM, <code>.attr()</code> per attributi</li>
+        <li>Evita selettori troppo complessi nelle loop</li>
+        <li>Usa versioni minificate in produzione e Content Security / SRI con CDN</li>
+      </ul>
+    </section>
+
+    <section id="esempi">
+      <h2>Esempi pratici &amp; esercizi</h2>
+
+      <h3>Esempio: TODO semplice (HTML + jQuery)</h3>
+      <div class="example">
+        Copia questo blocco in un file .html e aprilo: è un esempio minimale di lista TODO con aggiungi, toggle e rimozione.
+        <pre>&lt;!-- Esempio TODO --&gt;
+&lt;!doctype html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;script src="https://code.jquery.com/jquery-3.6.4.min.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;form id="f"&gt;
+    &lt;input id="t" placeholder="Aggiungi..." /&gt;
+    &lt;button&gt;Aggiungi&lt;/button&gt;
+  &lt;/form&gt;
+  &lt;ul id="list"&gt;&lt;/ul&gt;
+
+  &lt;script&gt;
+  $(function(){
+    $("#f").on("submit", function(e){
+      e.preventDefault();
+      var v = $("#t").val().trim();
+      if(!v) return;
+      var $li = $("<li&gt;").text(v).append(
+        $("<button class='del'&gt;").text("x")
+      );
+      $("#list").append($li);
+      $("#t").val("").focus();
+    });
+
+    // delegation: gestisce anche elementi aggiunti dopo
+    $("#list").on("click", ".del", function(){
+      $(this).closest("li").remove();
+    });
+
+    // toggle completamento al click sulla riga
+    $("#list").on("click", "li", function(e){
+      if($(e.target).is("button")) return;
+      $(this).toggleClass("done");
+    });
+  });
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </div>
+
+      <h3>Esercizi (base/intermedio)</h3>
+      <ol>
+        <li>Seleziona tutti i bottoni con classe <code>.cta</code> e aggiungi un click handler che mostra l'ID del bottone.</li>
+        <li>Costruisci una tabella dinamica che carica dati da <code>https://jsonplaceholder.typicode.com/users</code> e la mostra. Gestisci errori.</li>
+        <li>Scrivi un plugin chiamato <code>blink</code> che esegue un rapido effetto di sparizione/riapparizione sull'elemento.</li>
+        <li>Usa <code>$.when</code> per caricare due API e mostrare i risultati quando entrambe sono pronte.</li>
+      </ol>
+
+      <details>
+        <summary>Soluzioni (clicca per espandere)</summary>
+        <h4>Soluzione 1</h4>
+        <pre>$(".cta").on("click", function(){ alert("ID: " + $(this).attr("id")); });</pre>
+
+        <h4>Soluzione 2 (scheletro)</h4>
+        <pre>$.ajax({ url:"https://jsonplaceholder.typicode.com/users", dataType:"json" })
+.done(function(users){
+  users.forEach(function(u){
+    $("#table tbody").append("&lt;tr&gt;&lt;td&gt;"+u.id+"&lt;/td&gt;&lt;td&gt;"+u.name+"&lt;/td&gt;&lt;td&gt;"+u.email+"&lt;/td&gt;&lt;/tr&gt;");
+  });
+})
+.fail(function(){ alert("Errore caricamento"); });</pre>
+
+        <h4>Soluzione 3 (plugin blink)</h4>
+        <pre>(function($){
+  $.fn.blink = function(times, speed){
+    times = times || 3; speed = speed || 200;
+    return this.each(function(){
+      var $el = $(this), i = 0;
+      function step(){
+        $el.fadeToggle(speed, function(){
+          i++;
+          if(i &lt; times*2) step();
+        });
+      }
+      step();
+    });
+  };
+})(jQuery);
+
+// uso: $("#mio").blink(4,150);</pre>
+
+        <h4>Soluzione 4 ($.when)</h4>
+        <pre>var a = $.ajax("/api/a");
+var b = $.ajax("/api/b");
+$.when(a,b).done(function(aRes,bRes){
+  // aRes[0] e bRes[0] sono i dati
+});</pre>
+      </details>
+
+      <h3>Risorse utili</h3>
+      <ul>
+        <li><a href="https://jquery.com/" target="_blank" rel="noopener">Sito ufficiale jQuery</a></li>
+        <li><a href="https://api.jquery.com/" target="_blank" rel="noopener">Documentazione API jQuery</a></li>
+        <li><a href="https://developer.mozilla.org/it/docs/Web/JavaScript" target="_blank" rel="noopener">MDN JavaScript (per capire il core JS)</a></li>
+      </ul>
+
+    </section>
+
+    <footer>
+      <p class="small">Questa guida è pensata per fornire un percorso rapido da principianti a concetti intermedi. Se vuoi, posso generare un file HTML pronto da scaricare con tutti gli esempi funzionanti e una TODO app completa — dimmi se preferisci una versione minimale o una più completa con AJAX simulato.</p>
+    </footer>
+  </div>
+</body>
+</html>
