@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Guida Base/Intermedia alle classi di Bootstrap (HTML)</title>
+  <meta name="description" content="Guida pratica alle classi di Bootstrap 5: container, grid, utilities, componenti comuni, esempi e best practice per integrazione e personalizzazione.">
+  <meta name="author" content="Stefanoo94">
+  <style>
+    :root{--max-width:1100px;--accent:#0b71e5;--muted:#666}
+    body{font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;margin:24px;background:#f7fbff;color:#111;display:flex;justify-content:center}
+    .wrap{width:100%;max-width:var(--max-width);background:#fff;border-radius:10px;padding:20px 22px;box-shadow:0 8px 30px rgba(15,30,60,0.06)}
+    header h1{margin:0;font-size:1.3rem}
+    header p{color:var(--muted);margin:6px 0 0}
+    section{margin-top:16px}
+    h2{margin:0 0 8px 0;color:#0b2b45;font-size:1.05rem}
+    pre{background:#0f1720;color:#e6eef7;padding:12px;border-radius:8px;overflow:auto;font-family:Menlo,Monaco,monospace;font-size:13px}
+    ul{margin:8px 0 12px 18px}
+    .note{background:#fff8c6;padding:10px;border-left:4px solid #ffd54f;border-radius:6px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:10px}
+    .card{background:#fbfeff;border:1px solid #eef5fb;padding:12px;border-radius:8px}
+    footer{margin-top:22px;color:var(--muted);font-size:0.95rem;border-top:1px solid #eee;padding-top:12px}
+    @media print{body{background:#fff} .wrap{box-shadow:none;border-radius:0}}
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div>
+        <h1>Guida alle classi di Bootstrap (livello base/intermedio)</h1>
+        <p>Che cosa sono le classi più usate, come funzionano e come combinarle rapidamente per layout responsive e componenti standard.</p>
+      </div>
+    </header>
+
+    <section id="include">
+      <h2>Includere Bootstrap (rapido)</h2>
+      <p>CDN (rapido, prototipo):</p>
+      <pre><code>&lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-..." crossorigin="anonymous"&gt;
+&lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-..." crossorigin="anonymous"&gt;&lt;/script&gt;</code></pre>
+      <p>Per produzione preferisci installazione via NPM e compilazione Sass per personalizzare e ridurre il bundle.</p>
+    </section>
+
+    <section id="containers-grid">
+      <h2>Container, Grid e colonne</h2>
+      <ul>
+        <li><strong>Container</strong>:
+          <ul>
+            <li><code>.container</code> — larghezza fissa responsive</li>
+            <li><code>.container-fluid</code> — piena larghezza</li>
+            <li><code>.container-{breakpoint}</code> (es. <code>.container-md</code>) per container fluidi fino a un breakpoint</li>
+          </ul>
+        </li>
+        <li><strong>Grid</strong> — sistema a 12 colonne:
+          <ul>
+            <li><code>.row</code> per riga</li>
+            <li><code>.col</code> per colonne fluide</li>
+            <li><code>.col-6</code>, <code>.col-md-4</code> per larghezze esplicite e responsive</li>
+          </ul>
+        </li>
+      </ul>
+
+      <h3>Esempio</h3>
+      <pre><code>&lt;div class="container"&gt;
+  &lt;div class="row"&gt;
+    &lt;div class="col-12 col-md-6"&gt;Colonna A&lt;/div&gt;
+    &lt;div class="col-12 col-md-6"&gt;Colonna B&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      <div class="note">Le classi responsive seguono lo schema <code>.col-{breakpoint}-{n}</code>, breakpoint: <code>sm, md, lg, xl, xxl</code>.</div>
+    </section>
+
+    <section id="utilities">
+      <h2>Utilities essenziali (rapido cheat sheet)</h2>
+      <div class="grid">
+        <div class="card">
+          <strong>Spaziatura</strong>
+          <p><code>m</code> (margin), <code>p</code> (padding). Sintassi: <code>m{t|b|s|e|x|y}-{0..5|auto}</code></p>
+          <pre><code>.mt-3 .px-2 .mb-0 .mx-auto</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Display & visibilità</strong>
+          <p><code>.d-none .d-block .d-flex</code> + responsive: <code>.d-md-none .d-lg-flex</code></p>
+          <pre><code>.d-none .d-md-block</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Flex utilities</strong>
+          <p><code>.d-flex .flex-row .flex-column .justify-content-between .align-items-center</code></p>
+          <pre><code>.d-flex.justify-content-between.align-items-center</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Tipografia</strong>
+          <p><code>.text-center .text-md-start .text-muted .fw-bold</code></p>
+          <pre><code>.text-primary .text-uppercase .lead</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Colori & sfondi</strong>
+          <p><code>.text-*</code>, <code>.bg-*</code> (primary, success, danger, warning, info, light, dark)</p>
+          <pre><code>.text-white .bg-primary</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Immagini</strong>
+          <p><code>.img-fluid</code> (responsive), <code>.rounded</code>, <code>.rounded-circle</code></p>
+          <pre><code>&lt;img src="..." class="img-fluid rounded" alt="..."&gt;</code></pre>
+        </div>
+
+        <div class="card">
+          <strong>Ordinamento e allineamento</strong>
+          <p><code>.order-1 .order-md-2 .align-self-start</code></p>
+        </div>
+
+        <div class="card">
+          <strong>Visually hidden</strong>
+          <p><code>.visually-hidden</code> per nascondere visivamente ma lasciare accessibile</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="components">
+      <h2>Componenti più usati</h2>
+
+      <h3>Buttons</h3>
+      <pre><code>&lt;button class="btn btn-primary"&gt;Primary&lt;/button&gt;
+&lt;button class="btn btn-outline-secondary"&gt;Outline&lt;/button&gt;
+&lt;a class="btn btn-sm btn-danger"&gt;Small Danger&lt;/a&gt;</code></pre>
+
+      <h3>Navbar</h3>
+      <pre><code>&lt;nav class="navbar navbar-expand-md navbar-light bg-light"&gt;
+  &lt;div class="container-fluid"&gt;
+    &lt;a class="navbar-brand" href="#"&gt;Brand&lt;/a&gt;
+    &lt;button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false" aria-label="Toggle navigation"&gt;
+      &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;div class="collapse navbar-collapse" id="navMenu"&gt;
+      &lt;ul class="navbar-nav ms-auto"&gt;...&lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;</code></pre>
+
+      <h3>Cards</h3>
+      <pre><code>&lt;div class="card"&gt;
+  &lt;img src="..." class="card-img-top img-fluid" alt="..."&gt;
+  &lt;div class="card-body"&gt;
+    &lt;h5 class="card-title"&gt;Titolo&lt;/h5&gt;
+    &lt;p class="card-text"&gt;Testo.&lt;/p&gt;
+    &lt;a href="#" class="btn btn-primary"&gt;Azione&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+      <h3>Forms</h3>
+      <pre><code>&lt;form&gt;
+  &lt;div class="mb-3"&gt;
+    &lt;label class="form-label"&gt;Email&lt;/label&gt;
+    &lt;input type="email" class="form-control" placeholder="name@example.com"&gt;
+  &lt;/div&gt;
+  &lt;select class="form-select mb-3"&gt;...&lt;/select&gt;
+  &lt;div class="form-check"&gt;
+    &lt;input class="form-check-input" type="checkbox" id="check1"&gt;
+    &lt;label class="form-check-label" for="check1"&gt;Accetto&lt;/label&gt;
+  &lt;/div&gt;
+&lt;/form&gt;</code></pre>
+
+      <h3>Modal (struttura)</h3>
+      <pre><code>&lt;!-- Trigger -->
+&lt;button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"&gt;Apri modal&lt;/button&gt;
+
+&lt;!-- Modal markup --&gt;
+&lt;div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true"&gt;
+  &lt;div class="modal-dialog"&gt;
+    &lt;div class="modal-content"&gt;
+      &lt;div class="modal-header"&gt;
+        &lt;h5 class="modal-title"&gt;Titolo&lt;/h5&gt;
+        &lt;button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"&gt;&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="modal-body"&gt;Contenuto...&lt;/div&gt;
+      &lt;div class="modal-footer"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+      <h3>Altri componenti utili</h3>
+      <ul>
+        <li>Dropdowns: <code>.dropdown</code>, <code>.dropdown-menu</code></li>
+        <li>Toast: <code>.toast</code> (notify)</li>
+        <li>Accordion / Collapse: <code>.accordion</code>, <code>.collapse</code></li>
+        <li>Offcanvas: pannelli laterali <code>.offcanvas</code></li>
+        <li>Badges, Breadcrumbs, List group</li>
+      </ul>
+    </section>
+
+    <section id="responsive-classes">
+      <h2>Classi responsive (pattern)</h2>
+      <p>Bootstrap usa breakpoints standard: <code>sm</code> (576px), <code>md</code> (768px), <code>lg</code> (992px), <code>xl</code> (1200px), <code>xxl</code> (1400px). Le utilities supportano questa sintassi:</p>
+      <pre><code>.d-none .d-md-block        /* visibile da md in su */
+.col-12 .col-md-6             /* colonna 100% mobile, 50% md+ */
+.text-center .text-lg-start   /* testo centrato mobile, left su lg+ */</code></pre>
+      <div class="note">Quando usi utility responsive pensa mobile-first: definisci stili di base per mobile e applica modifiche con classi breakpoint.</div>
+    </section>
+
+    <section id="js-and-accessibility">
+      <h2>JS integrato e Accessibilità</h2>
+      <ul>
+        <li>Bootstrap JS (bundle) include Popper per tooltip/popover: importa <code>bootstrap.bundle.min.js</code>.</li>
+        <li>I componenti usano data attributes per inizializzazione automatica (es. <code>data-bs-toggle</code>).</li>
+        <li>Accessibilità:
+          <ul>
+            <li>Navbar toggler: usa <code>aria-controls</code>, <code>aria-expanded</code>, <code>aria-label</code>.</li>
+            <li>Modal gestisce focus trap e aria-hidden automaticamente quando usi l'API/markup corretto.</li>
+            <li>Tooltip/popover: assicurati di fornire contenuti alternativi se necessari.</li>
+          </ul>
+        </li>
+      </ul>
+    </section>
+
+    <section id="customize">
+      <h2>Personalizzazione & Ottimizzazione</h2>
+      <h3>1) Sass e variabili</h3>
+      <p>Installa Bootstrap via NPM e usa Sass per sovrascrivere variabili prima di importare il core:</p>
+      <pre><code>// _custom.scss
+$primary: #0b71e5;
+$body-font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+
+@use "bootstrap" with ($primary: $primary, $body-font-family: $body-font-family);</code></pre>
+
+      <h3>2) Import selettivo</h3>
+      <p>Importa solo i partial necessari per ridurre peso (grid, buttons, forms, utilities).</p>
+
+      <h3>3) Tree‑shaking / PurgeCSS</h3>
+      <p>Usa PurgeCSS per rimuovere classi non usate; safelist le classi generate dinamicamente (es. <code>btn-${color}</code>).</p>
+
+      <h3>4) CDN con SRI</h3>
+      <pre><code>&lt;link rel="stylesheet" href="https://cdn..." integrity="sha384-..." crossorigin="anonymous"&gt;</code></pre>
+    </section>
+
+    <section id="patterns">
+      <h2>Pattern e Best Practice</h2>
+      <ul>
+        <li>Preferisci le utility per layout veloci e componenti Bootstrap per UI consistente.</li>
+        <li>Non sovrascrivere pesantemente il CSS base: usa variabili o crea classi derivanti (es. <code>.btn--brand</code> che estende <code>.btn</code>).</li>
+        <li>Separare styling custom in file separato importato DOPO bootstrap per garantire override semplici.</li>
+        <li>Evita di miscelare troppo le classi utility e le regole CSS personalizzate nello stesso markup: mantieni chiarezza semantica.</li>
+      </ul>
+    </section>
+
+    <section id="example-page">
+      <h2>Esempio completo (layout base)</h2>
+      <pre><code>&lt;!doctype html&gt;
+&lt;html lang="it"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;
+  &lt;link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+&lt;nav class="navbar navbar-expand-md navbar-light bg-light"&gt;
+  &lt;div class="container-fluid"&gt;
+    &lt;a class="navbar-brand" href="#"&gt;Brand&lt;/a&gt;
+    &lt;button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-controls="navMenu" aria-expanded="false"&gt;
+      &lt;span class="navbar-toggler-icon"&gt;&lt;/span&gt;
+    &lt;/button&gt;
+    &lt;div class="collapse navbar-collapse" id="navMenu"&gt;
+      &lt;ul class="navbar-nav ms-auto"&gt;
+        &lt;li class="nav-item"&gt;&lt;a class="nav-link" href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+      &lt;/ul&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+&lt;header class="py-5 bg-primary text-white"&gt;
+  &lt;div class="container"&gt;
+    &lt;div class="row align-items-center"&gt;
+      &lt;div class="col-12 col-md-8"&gt;
+        &lt;h1 class="display-6"&gt;Hero title&lt;/h1&gt;
+        &lt;p class="lead"&gt;Sottotitolo descrittivo.&lt;/p&gt;
+        &lt;a class="btn btn-light btn-lg" href="#"&gt;Call to action&lt;/a&gt;
+      &lt;/div&gt;
+      &lt;div class="col-12 col-md-4 text-center"&gt;
+        &lt;img src="hero.png" class="img-fluid rounded" alt="Hero"&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+
+&lt;main class="py-5"&gt;
+  &lt;div class="container"&gt;
+    &lt;div class="row g-4"&gt;
+      &lt;div class="col-12 col-md-6 col-lg-4"&gt;
+        &lt;div class="card"&gt;
+          &lt;img src="..." class="card-img-top img-fluid" alt="..."&gt;
+          &lt;div class="card-body"&gt;&lt;h5 class="card-title"&gt;Card&lt;/h5&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;!-- altre card --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+
+&lt;script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+    </section>
+
+    <section id="cheatsheet-quick">
+      <h2>Cheatsheet rapido</h2>
+      <ul>
+        <li><code>.container</code>, <code>.container-fluid</code></li>
+        <li><code>.row</code>, <code>.col</code>, <code>.col-md-6</code></li>
+        <li><code>.d-flex</code>, <code>.justify-content-between</code>, <code>.align-items-center</code></li>
+        <li><code>.m-3, .p-2, .mt-4, .px-3</code></li>
+        <li><code>.text-center, .text-md-start</code></li>
+        <li><code>.btn, .btn-primary, .btn-outline-*</code></li>
+        <li><code>.form-control, .form-select, .form-check</code></li>
+        <li><code>.img-fluid, .rounded</code></li>
+      </ul>
+    </section>
+
+    <footer>
+      <p class="note">Se vuoi, posso generare una versione starter (index.html + esempio CSS/SCSS + package.json con Bootstrap via NPM) pronta per essere messa in un repository. Dimmi quale opzione preferisci.</p>
+    </footer>
+  </main>
+</body>
+</html>
