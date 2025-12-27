@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>jQuery — Best Practice, Patterns e Payload Pattern (Molto Dettagliato)</title>
+  <style>
+    body { font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; max-width:1200px; margin:2rem auto; padding:0 1.25rem; color:#222; line-height:1.65; }
+    header h1 { margin:0 0 .2rem 0; font-size:2rem; }
+    nav { margin:1rem 0 1.5rem 0; border-bottom:1px solid #e6e6e6; padding-bottom:.8rem; }
+    nav a { margin-right:1rem; color:#0b66c3; text-decoration:none; font-weight:600; font-size:.95rem; }
+    section { margin:1.25rem 0; padding:1rem; border:1px solid #efefef; border-radius:8px; background:#fff; }
+    pre { background:#0f1720; color:#dfe7ec; padding:1rem; overflow:auto; border-radius:6px; font-size:.93rem; }
+    code { font-family: Consolas, "Courier New", monospace; background:black; padding:2px 6px; border-radius:4px; }
+    h2 { margin-top:0; }
+    h3 { margin-bottom:.2rem; }
+    ul { margin:.5rem 0 0 1.2rem; }
+    ol { margin:.5rem 0 0 1.2rem; }
+    .note { background:#fffbe6; border-left:4px solid #ffd24d; padding:.6rem; border-radius:4px; display:block; margin:.8rem 0; }
+    .muted { color:#666; font-size:.95rem; }
+    footer { font-size:.9rem; color:#666; margin-top:1.5rem; text-align:center; }
+    table { border-collapse:collapse; width:100%; margin-top:.6rem; }
+    table th, table td { border:1px solid #e6e6e6; padding:8px 10px; text-align:left; }
+    .small { font-size:.92rem; color:#444; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>jQuery — Best Practice, Design Patterns e "Payload Pattern" (Guida Molto Dettagliata)</h1>
+    <p class="muted">Guida approfondita per sviluppatori front-end che usano jQuery: organizzazione del codice, patterns (module, plugin, pub/sub), gestione payload (AJAX, eventi, bus), sicurezza, performance, testing e strategie di migrazione. Include esempi pratici e checklist operative.</p>
+  </header>
+
+  <nav>
+    <a href="#principi">Principi</a>
+    <a href="#organizzazione">Setup & Organizzazione</a>
+    <a href="#dom">Manipolazione DOM</a>
+    <a href="#eventi">Event Handling</a>
+    <a href="#ajax">AJAX & Payload</a>
+    <a href="#payload-pattern">Payload Pattern (dettagli)</a>
+    <a href="#patterns">Patterns</a>
+    <a href="#plugins">Plugin Pattern</a>
+    <a href="#performance">Performance</a>
+    <a href="#memoria">Memory Leaks & Cleanup</a>
+    <a href="#testing">Testing</a>
+    <a href="#build">Build & Deployment</a>
+    <a href="#migration">Migrazione</a>
+    <a href="#checklist">Checklist</a>
+  </nav>
+
+  <section id="principi">
+    <h2>Principi fondamentali</h2>
+    <ul>
+      <li>Progressive enhancement: l'applicazione dovrebbe funzionare anche senza JS quando applicabile.</li>
+      <li>Separation of concerns: HTML per struttura, CSS per presentazione, JS per comportamento.</li>
+      <li>Unobtrusive JavaScript: evitare inline event handlers (onclick) e usare delegazione.</li>
+      <li>Minimizzare globali: usare IIFE/moduli per isolare lo scope.</li>
+      <li>Favorire leggibilità e testabilità: codice breve, funzioni pure dove possibile, dipendenze iniettate.</li>
+    </ul>
+  </section>
+
+  <section id="organizzazione">
+    <h2>Setup & Organizzazione dei file</h2>
+    <h3>Caricamento jQuery</h3>
+    <p>Carica jQuery da CDN con fallback locale e versione bloccata:</p>
+    <pre><code class="language-html">&lt;script src="https://code.jquery.com/jquery-3.6.4.min.js"&gt;&lt;/script&gt;
+&lt;script&gt;window.jQuery || document.write('&lt;script src="/scripts/jquery-3.6.4.min.js"&gt;&lt;\/script&gt;');&lt;/script&gt;</code></pre>
+
+    <h3>Organizzazione file</h3>
+    <ul>
+      <li>/scripts/lib/ — vendor (jQuery, plugins esterni)</li>
+      <li>/scripts/components/ — componenti modulari (es. cartWidget.js, search.js)</li>
+      <li>/scripts/pages/ — logica specifica per pagina (iniettata da server o bundler)</li>
+      <li>/scripts/utils/ — helper comuni (ajax-wrapper, debounce, events)</li>
+      <li>/tests/ — test unitari (Jasmine/Karma)</li>
+    </ul>
+
+    <h3>Bundling e versioning</h3>
+    <ul>
+      <li>Bundla e minifica in produzione (webpack/gulp/rollup). Genera source maps in dev/staging.</li>
+      <li>Usa cache-busting (hash nei filename) per asset in produzione.</li>
+    </ul>
+  </section>
+
+  <section id="dom">
+    <h2>Manipolazione DOM — regole pratiche</h2>
+    <ul>
+      <li>Cache dei selettori: evita ripetute query DOM identiche.</li>
+      <li>Batch DOM updates: costruisci HTML in memoria e appendi una sola volta.</li>
+      <li>Preferisci class toggling rispetto a manipolazione inline delle proprietà di stile.</li>
+      <li>Usa data-attributes per associare piccoli metadati a elementi DOM.</li>
+    </ul>
+
+
+
+
+</html></body>n... (content trimmed for brevity) ...

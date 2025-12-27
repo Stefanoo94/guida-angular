@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Guida Ultra-Dettagliata – Colloquio ASP.NET MVC 5 (.NET Framework 4.8)</title>
+    <style>
+        :root{
+            --bg:#f4f6f8;
+            --card:#ffffff;
+            --accent:#1abc9c;
+            --accent-dark:#16a085;
+            --heading:#1f2d3d;
+            --muted:#6b7a8a;
+            --mono-bg:#f0f0f0;
+            --shadow:0 3px 12px rgba(16,24,32,0.08);
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        body{
+            background:var(--bg);
+            margin:32px;
+            color:#22313a;
+            line-height:1.65;
+            font-size:16px;
+        }
+        header{
+            margin-bottom:22px;
+        }
+        h1{ color:var(--heading); margin:0 0 8px 0; }
+        p.lead{ color:var(--muted); margin:0 0 18px 0; }
+        nav.toc{ background:var(--card); padding:14px; border-radius:8px; box-shadow:var(--shadow); margin-bottom:18px;}
+        nav.toc h2{ font-size:1rem; margin:0 0 8px 0; color:var(--heading); }
+        nav.toc ul{ margin:0; padding-left:18px; }
+        .question{
+            background:var(--card);
+            border-left:6px solid var(--accent);
+            padding:20px;
+            margin-bottom:22px;
+            border-radius:6px;
+            box-shadow:var(--shadow);
+        }
+        .question h2{ margin-top:0; color:#0f2b36; }
+        .answer{ margin-top:10px; color:#23343e; }
+        code, pre { background:var(--mono-bg); border-radius:6px; padding:6px 8px; font-family: Consolas, "Courier New", monospace; font-size:0.95em; color:#0a0a0a; }
+        pre{ overflow:auto; padding:12px; }
+        .tip{ background:#eafaf6; border-left:4px solid var(--accent-dark); padding:10px; margin-top:12px; border-radius:4px; }
+        .subtle{ color:var(--muted); font-size:0.95em; }
+        ul{ margin-top:8px; }
+        table{ border-collapse:collapse; width:100%; margin-top:12px;}
+        table td, table th{ border:1px solid #e6eef2; padding:8px; text-align:left; }
+        footer{ margin-top:28px; color:var(--muted); font-size:0.9em; }
+        .example-title{ font-weight:600; margin-top:12px; color:#153238; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Guida Ultra-Dettagliata – Colloquio ASP.NET MVC 5 (.NET Framework 4.8)</h1>
+    <p class="lead">Versione migliorata e ampliata: esempi pratici, snippet di codice, anti-pattern, consigli per il colloquio e domande follow-up. Preparazione adatta per profili junior → senior.</p>
+</header>
+
+<nav class="toc" aria-label="Indice">
+    <h2>Indice rapido</h2>
+    <ul>
+        <li><a href="#mvc-vs-webapi">1. Differenza tra ASP.NET MVC 5 e ASP.NET Web API 2</a></li>
+        <li><a href="#model-binding">2. Model Binding e funzionamento interno</a></li>
+        <li><a href="#over-posting">3. Over-posting: cause e mitigazioni</a></li>
+        <li><a href="#viewbag-viewdata-tempdata">4. ViewBag, ViewData, TempData</a></li>
+        <li><a href="#razor">5. Razor: come funziona</a></li>
+        <li><a href="#auth-vs-authz">6. Autenticazione vs Autorizzazione</a></li>
+        <li><a href="#filters">7. Filtri MVC e pipeline completa</a></li>
+        <li><a href="#ef6">8. Entity Framework 6</a></li>
+        <li><a href="#loading">9. Lazy vs Eager Loading (N+1)</a></li>
+        <li><a href="#automapper">10. AutoMapper</a></li>
+        <li><a href="#routing">11. Routing convenzionale vs Attribute Routing</a></li>
+        <li><a href="#csrf">12. Anti-Forgery Token e CSRF</a></li>
+        <li><a href="#redirect-vs-view">13. RedirectToAction vs View</a></li>
+        <li><a href="#bundling">14. Bundling e Minification</a></li>
+        <li><a href="#error-handling">15. Gestione errori globale</a></li>
+        <li><a href="#httpmodule-handler">16. IHttpModule vs IHttpHandler</a></li>
+        <li><a href="#validation">17. Model Validation</a></li>
+        <li><a href="#di">18. Dependency Injection in MVC 5</a></li>
+        <li><a href="#performance">19. Performance tips</a></li>
+        <li><a href="#best-practices">20. Best practice generali</a></li>
+        <li><a href="#extras">Appendice: Async, Test, Security checklist, EF performance</a></li>
+    </ul>
+</nav>
+
+<!-- 1 -->
+<section id="mvc-vs-webapi" class="question">
+    <h2>1. Differenza tra ASP.NET MVC 5 e ASP.NET Web API 2</h2>
+    <div class="answer">
+        <p><strong>ASP.NET MVC 5</strong> è pensato per applicazioni web server-side che restituiscono principalmente HTML (View engine Razor). È orientato al pattern MVC: Controller → View → Model. Tipico per applicazioni con UI server-rendered.</p>
+
+        <p><strong>ASP.NET Web API 2</strong> è progettato per costruire servizi HTTP/REST che espongono dati (JSON, XML). È costruito attorno a HttpMessageHandlers, HttpRequestMessage/HttpResponseMessage, content negotiation e supporta routing basato su attributi più flessibile per API.</p>
+
+        <ul>
+            <li>MVC: ActionResult, View(), PartialView(), gestione sessione e viewstate-like (server side).</li>
+            <li>Web API: IHttpActionResult, HttpResponseMessage, convenzioni REST, Content Negotiation.</li>
+        </ul>
+
+        <div class="tip"><strong>Da dire al colloquio:</strong> puoi usare entrambi nello stesso progetto, ma separare responsabilità è una buona pratica: MVC per UI, Web API per consumatori (single-page apps, mobile, integrazione).</div>
+
+        <p class="subtle">Esempio rapido: un controller MVC restituisce una View con ViewModel; un controller Web API restituisce dati JSON e gestisce status code in modo esplicito.</p>
+    </div>
+</section>
+
+<!-- 2 -->
+<section id="model-binding" class="question">
+    <h2>2. Cos’è il Model Binding e come funziona internamente</h2>
+    <div class="answer">
+        <p>Il Model Binder è il componente che prende dati dalla richiesta HTTP (route, query string, form, JSON body) e popola i parametri delle Action o gli oggetti Model. È estendibile con <code>IModelBinder</code> e <code>ModelBinderProviders</code>.</p>
+
+        <h3 class="example-title">Flusso semplificato</h3>
+        <ol>
+            <li>MVC invoca il model binding per ciascun parametro dell'action.</li>
+            <li>Il DefaultModelBinder cerca valori da: route values → query string → form data → body (per Web API/JSON).</li>
+            <li>Per complessi object graph usa reflection per istanziare e impostare proprietà; gestisce collezzioni e tipi complessi.</li>
+            <li>Il binding popola ModelState con errori (es. conversione fallita).</li>
+        </ol>
+
+        <h3 class="example-title">Esempio: action</h3>
+        <pre><code>// POST /users/create
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(UserViewModel vm)
+{
+    if (!ModelState.IsValid) return View(vm);
+    // vm è già popolato dal model binder
+}</code></pre>
+
+        <h3 class="example-title">Estendere il binding</h3>
+        <pre><code>public class DateOnlyModelBinder : IModelBinder
+{
+    public object BindModel(ControllerContext controllerContext, ModelBindingContext bindingContext)
+    {
+        var value = bindingContext.ValueProvider.GetValue(bindingContext.ModelName);
+        if (value == null) return null;
+        DateTime dt;
+        if (DateTime.TryParseExact(value.AttemptedValue, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt))
+            return dt;
+        bindingContext.ModelState.AddModelError(bindingContext.ModelName, "Formato data non valido");
+        return null;
+    }
+}
+
+// Registrazione in Global.asax o in startup
+ModelBinders.Binders.Add(typeof(DateTime), new DateOnlyModelBinder());</code></pre>
+
+        <div class="tip">Domanda follow-up utile: come il binding influisce sulla sicurezza (es. over-posting) e performance (binding di grandi graph può essere costoso)?</div>
+    </div>
+</section>
+
+<!-- 3 -->
+<section id="over-posting" class="question">
+    <h2>3. Over-posting: cos’è, perché è pericoloso e come prevenirlo</h2>
+    <div class="answer">
+        <p><strong>Over-posting</strong> (o mass assignment) si verifica quando un form invia campi aggiuntivi che il model binder mappa direttamente a proprietà sensibili dell'entità (es. Role, IsAdmin, Balance), consentendo modifiche non autorizzate.</p>
+
+        <h3 class="example-title">Perché è pericoloso</h3>
+        <ul>
+            <li>Attaccante può inviare proprietà non presenti nel form (es. tramite client modificato) e alterare dati sensibili.</li>
+            <li>Può causare escalation di privilegi o alterazione di relazioni DB.</li>
+        </ul>
+
+        <h3 class="example-title">Mitigazioni</h3>
+        <ul>
+            <li>Usare <strong>ViewModel</strong> dedicati che espongono solo i campi necessari.</li>
+            <li>Fare mapping esplicito (AutoMapper con profili o mapping manuale).</li>
+            <li>Evita di usare direttamente Entity Framework entities nelle View.</li>
+            <li>Se necessario, usare <code>[Bind(Include="...")]/[Bind(Exclude="...")]</code> con attenzione (bind include è preferibile ma può diventare oneroso).</li>
+            <li>Usare la validazione lato server e ModelState per controllare i valori.</li>
+        </ul>
+
+        <h3 class="example-title">Esempio sicuro</h3>
+        <pre><code>public class UserEditViewModel
+{
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    // NOT: IsAdmin, RoleId, Balance
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit(UserEditViewModel vm)
+{
+    if (!ModelState.IsValid) return View(vm);
+    var user = _repo.GetById(vm.Id);
+    user.FirstName = vm.FirstName;
+    user.LastName = vm.LastName;
+    _repo.Save(user);
+    return RedirectToAction("Index");
+}</code></pre>
+    </div>
+</section>
+
+<!-- 4 -->
+<section id="viewbag-viewdata-tempdata" class="question">
+    <h2>4. Differenza tra ViewBag, ViewData e TempData</h2>
+    <div class="answer">
+        <ul>
+            <li><strong>ViewData</strong>: <code>ViewData["key"]</code> è un <em>dictionary</em> (object) che dura una singola richiesta e viene passato alla View.</li>
+            <li><strong>ViewBag</strong>: wrapper dinamico su ViewData, permette sintassi dinamica (<code>ViewBag.Title</code>).</li>
+            <li><strong>TempData</strong>: usa internamente Session (o provider alternativo) per conservare dati tra due richieste; tipico Post/Redirect/Get. Ha meccanismi Peek/Keep per conservarlo oltre il primo read.</li>
+        </ul>
+
+        <p class="subtle">Quando usare cosa: ViewData/ViewBag per dati di sola lettura nella view corrente; TempData per passare messaggi o short-lived data dopo redirect (es. success message).</p>
+
+        <pre><code>TempData["Success"] = "Utente aggiornato";
+return RedirectToAction("Index");
+
+// In Index view
+@if(TempData["Success"] != null) { &lt;div class="alert"&gt;@TempData["Success"]&lt;/div&gt; }</code></pre>
+    </div>
+</section>
+
+<!-- 5 -->
+<section id="razor" class="question">
+    <h2>5. Razor: come funziona e perché è utile</h2>
+    <div class="answer">
+        <p>Razor è un view engine che traduce i file .cshtml in classi C# compilate durante il runtime/compilazione. La sintassi è leggera e evita conflitti HTML/C#.</p>
+
+        <h3 class="example-title">Caratteristiche</h3>
+        <ul>
+            <li>Parsing intelligente di blocchi C# e HTML</li>
+            <li>Supporto per template, partial view, sections</li>
+            <li>Compilazione e caching delle view per prestazioni</li>
+            <li>IntelliSense e tooling in Visual Studio</li>
+        </ul>
+
+        <h3 class="example-title">Snippet</h3>
+        <pre><code>@model IEnumerable<ProductViewModel>
+
+@foreach(var p in Model) {
+    &lt;div class="product"&gt;
+        &lt;h3&gt;@p.Name&lt;/h3&gt;
+        &lt;p&gt;@Html.Raw(HttpUtility.HtmlEncode(p.Description))&lt;/p&gt;
+    &lt;/div&gt;
+}</code></pre>
+
+        <div class="tip">Attenzione a XSS: usa sempre HtmlEncode o helper forti; evita Html.Raw con dati non sanitizzati.</div>
+    </div>
+</section>
+
+<!-- 6 -->
+<section id="auth-vs-authz" class="question">
+    <h2>6. Autenticazione vs Autorizzazione in MVC 5</h2>
+    <div class="answer">
+        <p><strong>Autenticazione</strong>: verifica l'identità (chi sei). In MVC5 si usa spesso ASP.NET Identity + OWIN middleware per cookie auth, external providers (Google, Facebook) e token.</p>
+        <p><strong>Autorizzazione</strong>: verifica i permessi (cosa puoi fare). Si applica con attributi come <code>[Authorize]</code>, ruoli e policy-based checks custom.</p>
+
+        <h3 class="example-title">Esempio</h3>
+        <pre><code>[Authorize] // solo utenti autenticati
+public ActionResult Dashboard() { ... }
+
+[Authorize(Roles="Admin")]
+public ActionResult AdminArea() { ... }</code></pre>
+
+        <h3 class="example-title">Note pratiche</h3>
+        <ul>
+            <li>Usare claims-based auth quando servono permessi granulari.</li>
+            <li>Separare autenticazione (middleware) da autorizzazione (attributi/policy).</li>
+            <li>Non fare autorizzazione solo nel client: check lato server obbligatori.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- 7 -->
+<section id="filters" class="question">
+    <h2>7. Filtri MVC: pipeline completa</h2>
+    <div class="answer">
+        <p>I filtri permettono di eseguire codice cross-cutting durante il ciclo di vita della richiesta MVC. Tipi principali:</p>
+        <ul>
+            <li><strong>Authorization filters</strong> (esecuti prima di tutto, controllano accesso)</li>
+            <li><strong>Action filters</strong> (OnActionExecuting / OnActionExecuted)</li>
+            <li><strong>Result filters</strong> (OnResultExecuting / OnResultExecuted)</li>
+            <li><strong>Exception filters</strong> (gestione eccezioni specifiche controller/action)</li>
+        </ul>
+
+        <h3 class="example-title">Ordine di esecuzione (semplificato)</h3>
+        <pre><code>Authorization -> Action (OnActionExecuting) -> Action Method -> Action (OnActionExecuted) -> Result (OnResultExecuting) -> Result Execution -> Result (OnResultExecuted)</code></pre>
+
+        <h3 class="example-title">Esempio filtro custom</h3>
+        <pre><code>public class TimingFilter : ActionFilterAttribute
+{
+    private Stopwatch _sw;
+    public override void OnActionExecuting(ActionExecutingContext filterContext)
+    {
+        _sw = Stopwatch.StartNew();
+    }
+    public override void OnActionExecuted(ActionExecutedContext filterContext)
+    {
+        _sw.Stop();
+        filterContext.HttpContext.Response.Headers.Add("X-Elapsed-ms", _sw.ElapsedMilliseconds.ToString());
+    }
+}</code></pre>
+
+        <div class="tip">Regole: non eseguire logiche pesanti o blocking IO nei filtri; preferire middleware o service layer per compiti complessi.</div>
+    </div>
+</section>
+
+<!-- 8 -->
+<section id="ef6" class="question">
+    <h2>8. Entity Framework 6 (EF6) in MVC 5</h2>
+    <div class="answer">
+        <p>EF6 è un ORM maturo con supporto per Code First, Database First e Model First. Fornisce change tracking, lazy loading, migrations e LINQ to Entities.</p>
+
+        <h3 class="example-title">Strategie d'uso</h3>
+        <ul>
+            <li>Code First: preferibile per greenfield e controllare schema via migrations</li>
+            <li>Database First: utile se DB esistente o team DBA gestisce schema</li>
+            <li>Repository/Unit of Work: facilita testabilità ma non è sempre necessario con DbContext ben gestito</li>
+        </ul>
+
+        <h3 class="example-title">Migrations</h3>
+        <pre><code>Enable-Migrations
+Add-Migration InitialCreate
+Update-Database</code></pre>
+
+        <h3 class="example-title">Esempio: AsNoTracking per query di sola lettura</h3>
+        <pre><code>var products = context.Products.AsNoTracking().Where(p =&gt; p.IsActive).ToList();</code></pre>
+    </div>
+</section>
+
+<!-- 9 -->
+<section id="loading" class="question">
+    <h2>9. Lazy Loading vs Eager Loading (N+1 problem)</h2>
+    <div class="answer">
+        <p><strong>Lazy Loading</strong>: le relazioni vengono caricate on-demand quando accedi alla proprietà di navigazione (proxy dinamici). Comodo ma può causare N+1 queries se non gestito.</p>
+        <p><strong>Eager Loading</strong>: carichi relazioni insieme alla query principale usando <code>Include(...)</code>, prevenendo molte roundtrip al DB.</p>
+
+        <h3 class="example-title">N+1 problem</h3>
+        <p>Se caricando una lista di 100 ordini accedi a <code>order.Customer</code> e lazy loading è attivo, EF può eseguire 1 query per gli ordini + 100 query per i clienti = N+1.</p>
+
+        <h3 class="example-title">Soluzione</h3>
+        <pre><code>var orders = context.Orders
+    .Include(o =&gt; o.Customer)
+    .Include(o =&gt; o.OrderLines.Select(ol =&gt; ol.Product))
+    .Where(o =&gt; o.Created &gt; date)
+    .ToList();</code></pre>
+
+        <div class="tip">Usa proiezioni (<code>Select</code>) quando ti serve solo un sottoinsieme di campi (migliora memoria e tempo di serializzazione).</div>
+    </div>
+</section>
+
+<!-- 10 -->
+<section id="automapper" class="question">
+    <h2>10. AutoMapper: perché e quando usarlo</h2>
+    <div class="answer">
+        <p>AutoMapper automatizza il mapping tra tipi (Entity ↔ DTO/ViewModel). Riduce boilerplate ma può nascondere mapping complessi che è meglio scrivere esplicitamente.</p>
+
+        <h3 class="example-title">Configurazione base</h3>
+        <pre><code>public class MappingProfile : Profile
+{
+    public MappingProfile()
+    {
+        CreateMap&lt;UserEntity, UserViewModel&gt;();
+        CreateMap&lt;UserViewModel, UserEntity&gt;()
+            .ForMember(dest =&gt; dest.PasswordHash, opt =&gt; opt.Ignore()); // ignore campi sensibili
+    }
+}
+
+// Registrazione (Global.asax o startup)
+Mapper.Initialize(cfg =&gt; cfg.AddProfile&lt;MappingProfile&gt;());</code></pre>
+
+        <div class="tip">Preferisci mapping esplicito per logica di trasformazione complessa o per campi sensibili.</div>
+    </div>
+</section>
+
+<!-- 11 -->
+<section id="routing" class="question">
+    <h2>11. Routing convenzionale vs Attribute Routing</h2>
+    <div class="answer">
+        <p><strong>Routing convenzionale</strong> è definito centralmente (RouteConfig) con pattern come <code>{controller}/{action}/{id}</code>. È semplice e adatto a convenzioni standard.</p>
+        <p><strong>Attribute routing</strong> si applica sulle action/controller tramite <code>[Route("products/{id}")]</code> ed è più esplicito e leggibile per RESTful API.</p>
+
+        <h3 class="example-title">Esempio attribute routing</h3>
+        <pre><code>[RoutePrefix("api/products")]
+public class ProductsController : ApiController
+{
+    [Route("{id:int}")]
+    public IHttpActionResult Get(int id) { ... }
+}</code></pre>
+    </div>
+</section>
+
+<!-- 12 -->
+<section id="csrf" class="question">
+    <h2>12. Anti-Forgery Token e CSRF</h2>
+    <div class="answer">
+        <p>La protezione CSRF richiede che le richieste state-changing (POST/PUT/DELETE) contengano un token unico verificato lato server. In MVC: usare <code>@Html.AntiForgeryToken()</code> nella view e <code>[ValidateAntiForgeryToken]</code> nell'action.</p>
+
+        <pre><code>&lt;form method="post"&gt;
+    @Html.AntiForgeryToken()
+    &lt;input name="Name" /&gt;
+&lt;/form&gt;
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Save(Model m) { ... }</code></pre>
+
+        <div class="tip">Per AJAX inviare il token nel header (X-CSRF-Token) o nel body; recuperalo da un meta tag o da un campo hidden.</div>
+    </div>
+</section>
+
+<!-- 13 -->
+<section id="redirect-vs-view" class="question">
+    <h2>13. RedirectToAction vs View</h2>
+    <div class="answer">
+        <ul>
+            <li><strong>View():</strong> restituisce la View per la stessa richiesta HTTP (no redirect). Utile per mostrare form con errori (ModelState preserved).</li>
+            <li><strong>RedirectToAction():</strong> invia un 302 al client, comporta nuova richiesta. Utile in Post/Redirect/Get per evitare doppio submit e aggiornare URL.</li>
+        </ul>
+
+        <pre><code>[HttpPost]
+public ActionResult Create(CreateVm vm)
+{
+    if (!ModelState.IsValid) return View(vm); // mostra errori
+    // salva...
+    return RedirectToAction("Index"); // PRG
+}</code></pre>
+    </div>
+</section>
+
+<!-- 14 -->
+<section id="bundling" class="question">
+    <h2>14. Bundling e Minification</h2>
+    <div class="answer">
+        <p>Bundling unisce più file CSS/JS in uno solo; Minification rimuove spazi/commenti per ridurre peso. In MVC5 si usa System.Web.Optimization.</p>
+
+        <h3 class="example-title">Esempio di registration</h3>
+        <pre><code>public class BundleConfig
+{
+    public static void RegisterBundles(BundleCollection bundles)
+    {
+        bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
+                    "~/Scripts/jquery-{version}.js"));
+        bundles.Add(new StyleBundle("~/Content/css").Include(
+                    "~/Content/site.css", "~/Content/bootstrap.css"));
+    }
+}</code></pre>
+
+        <div class="tip">In produzione attiva bundling/minification; in sviluppo mantieni i file singoli per il debug (BundleTable.EnableOptimizations = false).</div>
+    </div>
+</section>
+
+<!-- 15 -->
+<section id="error-handling" class="question">
+    <h2>15. Gestione errori globale in MVC 5</h2>
+    <div class="answer">
+        <p>Strategie comuni:</p>
+        <ul>
+            <li><strong>HandleErrorAttribute</strong> per errori generici (configurabile per view custom)</li>
+            <li><strong>CustomErrors</strong> in web.config per page-level mapping</li>
+            <li><strong>ExceptionFilter</strong> per logging e azioni centralizzate</li>
+            <li>Soluzioni di monitoring: ELMAH, Application Insights, Sentry</li>
+        </ul>
+
+        <h3 class="example-title">Esempio HandleError</h3>
+        <pre><code>public class MvcApplication : System.Web.HttpApplication
+{
+    protected void Application_Start()
+    {
+        GlobalFilters.Filters.Add(new HandleErrorAttribute());
+    }
+}</code></pre>
+
+        <div class="tip">Non esporre stack trace in produzione; logga eccezioni con livello adeguato e metriche.</div>
+    </div>
+</section>
+
+<!-- 16 -->
+<section id="httpmodule-handler" class="question">
+    <h2>16. IHttpModule vs IHttpHandler</h2>
+    <div class="answer">
+        <p><strong>IHttpHandler</strong> è il "terminatore" della richiesta — riceve e processa la richiesta HTTP e genera la risposta. Implementa <code>IHttpHandler</code> (es. servizi legacy, immagini dinamiche).</p>
+        <p><strong>IHttpModule</strong> è un componente che si "sottoscrive" agli eventi della pipeline ASP.NET (BeginRequest, AuthenticateRequest, EndRequest). Utile per logging, autenticazione custom, manipolazioni a livello di pipeline.</p>
+
+        <pre><code>// IHttpHandler semplice
+public class ImageHandler : IHttpHandler
+{
+    public void ProcessRequest(HttpContext context)
+    {
+        // generare immagine o restituire file
+    }
+    public bool IsReusable => false;
+}</code></pre>
+    </div>
+</section>
+
+<!-- 17 -->
+<section id="validation" class="question">
+    <h2>17. Model Validation</h2>
+    <div class="answer">
+        <p>La validazione si basa su Data Annotations (<code>[Required]</code>, <code>[StringLength]</code>, <code>[Range]</code>) e su ModelState. Si possono usare validatori custom (<code>IValidatableObject</code> o ValidationAttribute personalizzate).</p>
+
+        <h3 class="example-title">Esempio</h3>
+        <pre><code>public class RegisterVm
+{
+    [Required]
+    [EmailAddress]
+    public string Email { get; set; }
+
+    [Required]
+    [StringLength(100, MinimumLength=6)]
+    public string Password { get; set; }
+}
+
+[HttpPost]
+public ActionResult Register(RegisterVm vm)
+{
+    if (!ModelState.IsValid) return View(vm);
+    // procedi
+}</code></pre>
+
+        <div class="tip">Usa unobtrusive validation + jQuery validate per UX migliore ma non fidarti del client: sempre validare sul server.</div>
+    </div>
+</section>
+
+<!-- 18 -->
+<section id="di" class="question">
+    <h2>18. Dependency Injection in MVC 5</h2>
+    <div class="answer">
+        <p>DI migliora testabilità e disaccoppiamento. MVC5 non fornisce DI nativo ma si integra con container come Autofac, Ninject, Unity o SimpleInjector. Registrando un IDependencyResolver si risolve controller e servizi.</p>
+
+        <h3 class="example-title">Esempio con Ninject (sintesi)</h3>
+        <pre><code>private static void RegisterServices(IKernel kernel)
+{
+    kernel.Bind&lt;IUserRepository&gt;().To&lt;UserRepository&gt;().InRequestScope();
+    kernel.Bind&lt;IEmailService&gt;().To&lt;SmtpEmailService&gt;();
+}</code></pre>
+
+        <div class="tip">Preferisci costruttore injection e evita service locator. Scope: per request per DbContext è importante per evitare connessioni non gestite.</div>
+    </div>
+</section>
+
+<!-- 19 -->
+<section id="performance" class="question">
+    <h2>19. Performance tips MVC 5</h2>
+    <div class="answer">
+        <ul>
+            <li>Cache lato server: OutputCache per view statiche, Don’t cache dati sensibili.</li>
+            <li>Cache lato client (cache-control, etag).</li>
+            <li>Query DB: usare AsNoTracking per sola lettura; evitare SELECT *; proiezioni con Select.</li>
+            <li>Riduci roundtrips: Usa Include per relazioni necessarie.</li>
+            <li>Minimizza payload JSON: paginazione, filtri, compressione (gzip).</li>
+            <li>Profiling: MiniProfiler, SQL Profiler, Application Insights.</li>
+            <li>Riduci bundle size e usa CDN per librerie comuni (jQuery, bootstrap).</li>
+        </ul>
+
+        <div class="tip">Misura prima di ottimizzare: ottimizzazioni premature possono complicare il design senza benefici reali.</div>
+    </div>
+</section>
+
+<!-- 20 -->
+<section id="best-practices" class="question">
+    <h2>20. Best practice generali</h2>
+    <div class="answer">
+        <ul>
+            <li>Separazione delle responsabilità: controller sottili, servizi/business layer per logica.</li>
+            <li>Usare ViewModel/DTO per comunicazione tra UI e dominio.</li>
+            <li>Centralizza la gestione degli errori e logging.</li>
+            <li>Proteggi i POST con Anti-Forgery e validazione server-side.</li>
+            <li>Usa test automatici (unit + integration) e CI/CD.</li>
+            <li>Non fidarti mai dell'input client; sanitizza e valida.</li>
+            <li>Definisci policy di sicurezza: XSS, CSRF, CORS, Content Security Policy per le SPA.</li>
+        </ul>
+    </div>
+</section>
+
+<!-- Extras -->
+<section id="extras" class="question">
+    <h2>Appendice: argomenti extra utili per il colloquio</h2>
+    <div class="answer">
+        <h3 class="example-title">Async Controllers / Async actions</h3>
+        <p>Usa async/await per I/O-bound operations (DB, chiamate HTTP). In EF6 supporta async (ToListAsync, SaveChangesAsync).</p>
+        <pre><code>public async Task&lt;ActionResult&gt; Index()
+{
+    var items = await _context.Products.ToListAsync();
+    return View(items);
+}</code></pre>
+
+        <h3 class="example-title">Unit testing controller</h3>
+        <p>Mocka le dipendenze (repository, servizi). Verifica che l'action ritorni il tipo corretto, setti ModelState, compia redirect etc.</p>
+
+        <h3 class="example-title">Security checklist</h3>
+        <ul>
+            <li>Usare HTTPS sempre</li>
+            <li>Proteggere cookie (HttpOnly, Secure, SameSite)</li>
+            <li>Validazione input server-side</li>
+            <li>Proteggere API con token/claim</li>
+            <li>Limitare dimensione del body/upload</li>
+        </ul>
+
+        <h3 class="example-title">EF performance quick wins</h3>
+        <ul>
+            <li>Usa <code>AsNoTracking()</code> per readonly</li>
+            <li>Preferisci proiezioni con <code>Select</code> invece di scaricare oggetti completi</li>
+            <li>Batching e Bulk insert (librerie esterne)</li>
+            <li>Indexing e analisi delle query SQL</li>
+        </ul>
+
+        <h3 class="example-title">Domande di follow-up per il colloquio</h3>
+        <ul>
+            <li>Come gestiresti migrazioni su ambiente con dati sensibili/produttivi?</li>
+            <li>Descrivi un problema N+1 che hai risolto: come l'hai profilato?</li>
+            <li>Quando preferiresti scrivere mapping manuale rispetto ad usare AutoMapper?</li>
+            <li>Spiega come configureresti la sicurezza dei cookie per i cookie di autenticazione.</li>
+        </ul>
+    </div>
+</section>
+
+<footer>
+    <p>Questa guida è pensata come documento di riferimento per studiare e rispondere a domande tecniche durante un colloquio su ASP.NET MVC 5 e tecnologie correlate. Per ogni sezione puoi approfondire portando esempi pratici che hai scritto o risolto.</p>
+    <p class="subtle">Data ultima revisione: 2025-12-27</p>
+</footer>
+
+</body>
+</html>

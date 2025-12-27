@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Differenze tra .NET Framework 4.8 (ASP.NET MVC5) e ASP.NET Core</title>
+    <style>
+        :root{
+            --bg:#f7f9fb;
+            --card:#ffffff;
+            --accent:#2b7a78;
+            --muted:#6b7a86;
+            --mono:#f2f4f5;
+            font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            color:#23343e;
+        }
+        body{ background:var(--bg); margin:28px; line-height:1.6; }
+        header{ margin-bottom:18px; }
+        h1{ color:var(--accent); margin:0 0 6px 0; }
+        p.lead{ margin:0 0 14px 0; color:var(--muted); }
+        nav.toc{ background:var(--card); padding:12px; border-radius:8px; box-shadow: 0 6px 18px rgba(20,30,40,0.04); margin-bottom:18px; }
+        section.card{ background:var(--card); padding:18px; border-radius:8px; margin-bottom:14px; box-shadow: 0 6px 18px rgba(20,30,40,0.04); }
+        table{ width:100%; border-collapse:collapse; margin-top:8px; }
+        th, td{ border:1px solid #e6eef2; padding:10px; text-align:left; vertical-align:top; }
+        th{ background:#f6fbfb; color:#153238; }
+        code{ background:var(--mono); padding:4px 6px; border-radius:4px; font-family: Consolas, "Courier New", monospace; font-size:0.95em; display:inline-block; }
+        pre{ background:var(--mono); padding:10px; border-radius:6px; overflow:auto; font-family: Consolas, "Courier New", monospace; }
+        ul{ margin:8px 0 8px 18px; }
+        .tip{ background:#e9fbf9; border-left:4px solid var(--accent); padding:10px; border-radius:4px; margin-top:10px; }
+        .muted{ color:var(--muted); font-size:0.95em; }
+        footer{ margin-top:18px; color:var(--muted); font-size:0.95em; }
+    </style>
+</head>
+<body>
+<header>
+    <h1>Confronto: .NET Framework 4.8 (ASP.NET MVC5) vs ASP.NET Core</h1>
+    <p class="lead">Sintesi tecnica pensata per valutare differenze architetturali, operazionali e di sviluppo quando si lavora con applicazioni web basate su MVC5 (.NET 4.8) rispetto ad ASP.NET Core (cross-platform, .NET Core / .NET 5+).</p>
+</header>
+
+<nav class="toc" aria-label="Indice">
+    <strong>Indice</strong>
+    <ul>
+        <li>Panoramica e filosofia</li>
+        <li>Tabella riassuntiva delle principali differenze</li>
+        <li>Runtime, hosting e deployment</li>
+        <li>Pipeline HTTP / Middleware</li>
+        <li>Configurazione e DI</li>
+        <li>Razor, Views, Tag Helpers e Razor Pages</li>
+        <li>Entity Framework / Data access</li>
+        <li>Tooling, progetto e packaging</li>
+        <li>Sicurezza e autenticazione</li>
+        <li>Performance e scalabilità</li>
+        <li>Migrazione: checklist e consigli pratici</li>
+        <li>Domande da preparare per il colloquio</li>
+    </ul>
+</nav>
+
+<section class="card" id="overview">
+    <h2>Panoramica</h2>
+    <p class="muted">Sintesi in una frase:</p>
+    <ul>
+        <li><strong>.NET Framework 4.8 + ASP.NET MVC5</strong>: piattaforma stabile, Windows-only, costruita attorno a <code>System.Web</code> e alla pipeline IIS/OWIN classica. Ottima per applicazioni legacy e per integrazioni con tecnologie Windows-specific.</li>
+        <li><strong>ASP.NET Core</strong>: riprogettazione completa, lightweight, cross-platform (Windows/Linux/macOS), hosting indipendente (Kestrel) e pipeline modulare basata su middleware. Supporta .NET Core / .NET 5/6/7 (runtime moderno).</li>
+    </ul>
+</section>
+
+<section class="card" id="summary-table">
+    <h2>Tabella riassuntiva</h2>
+    <table>
+        <tr>
+            <th>Area</th>
+            <th>.NET 4.8 (ASP.NET MVC5)</th>
+            <th>ASP.NET Core</th>
+        </tr>
+        <tr>
+            <td>Runtime</td>
+            <td>Windows-only, CLR tradizionale (.NET Framework)</td>
+            <td>Cross-platform, runtime .NET Core / .NET (5+), side-by-side</td>
+        </tr>
+        <tr>
+            <td>Hosting</td>
+            <td>IIS integrato (System.Web), HttpModules/Handlers, OWIN opzionale</td>
+            <td>Kestrel come server integrato, spesso dietro reverse proxy (IIS, Nginx), hosting self-contained o framework-dependent</td>
+        </tr>
+        <tr>
+            <td>Pipeline HTTP</td>
+            <td>Basata su <code>System.Web</code>, HttpModules/IHttpHandler</td>
+            <td>Middleware modulare (Use, Run, Map), endpoint routing</td>
+        </tr>
+        <tr>
+            <td>Dependency Injection</td>
+            <td>Non nativa (container esterni: Ninject, Autofac, Unity)</td>
+            <td>DI integrata tramite <code>IServiceCollection</code> e <code>IServiceProvider</code></td>
+        </tr>
+        <tr>
+            <td>Configurazione</td>
+            <td><code>web.config</code>, <code>appSettings</code>, Registry/Environment</td>
+            <td><code>appsettings.json</code>, environment vars, secret manager, IConfiguration</td>
+        </tr>
+        <tr>
+            <td>Logging</td>
+            <td>System.Diagnostics, log4net, NLog</td>
+            <td>Logging integrato <code>Microsoft.Extensions.Logging</code> con provider multipli</td>
+        </tr>
+        <tr>
+            <td>Razor / Views</td>
+            <td>Razor (WebPages) con HtmlHelpers; ViewEngine basato su System.Web</td>
+            <td>Razor aggiornato, Tag Helpers, Razor Pages (pattern page-first), migliore integrazione con middleware</td>
+        </tr>
+        <tr>
+            <td>Session / HttpContext</td>
+            <td><code>HttpContext.Current</code>, sessione integrata</td>
+            <td><code>HttpContext</code> iniettato tramite HttpContextAccessor; <code>HttpContext.Current</code> non esiste</td>
+        </tr>
+        <tr>
+            <td>EF</td>
+            <td>EF6 (maturità, feature complete)</td>
+            <td>EF Core (più leggero, performance, alcuni feature ancora diversi ma in continuo miglioramento)</td>
+        </tr>
+        <tr>
+            <td>Progetti & tooling</td>
+            <td>csproj non-SDK, <code>packages.config</code> (o PackageReference opzionale), Visual Studio-centric</td>
+            <td>SDK-style csproj, <code>dotnet CLI</code>, migliore integrazione CI/CD e container</td>
+        </tr>
+    </table>
+</section>
+
+<section class="card" id="runtime-hosting">
+    <h2>Runtime, hosting e deployment</h2>
+    <ul>
+        <li><strong>.NET 4.8</strong>: l'app gira su Windows/IIS; frequente uso di <code>web.config</code> per routing, authentication e rewrite. L'hosting è gestito da IIS: molte funzionalità (certificati, module) legate alla piattaforma Windows.</li>
+        <li><strong>ASP.NET Core</strong>: Kestrel è il web server integrato e può esporre direttamente l'app oppure stare dietro Nginx/IIS come reverse proxy. Supporta deployment in container Docker, ambienti cloud (Azure, AWS, GCP) e side-by-side su stessa macchina (diverse versioni runtime).</li>
+    </ul>
+
+    <div class="tip">Vantaggio pratico: ASP.NET Core semplifica containerizzazione e deployment multi-OS; .NET Framework è preferibile se l'app dipende fortemente da librerie Windows-only.</div>
+</section>
+
+<section class="card" id="pipeline">
+    <h2>Pipeline HTTP e middleware</h2>
+    <p>La differenza architetturale più importante:</p>
+    <ul>
+        <li><strong>MVC5 / System.Web:</strong> pipeline monolitica gestita da IIS, molti componenti sono integrati e l'overhead di <code>System.Web</code> è significativo.</li>
+        <li><strong>ASP.NET Core:</strong> pipeline minima e componibile: middleware come componenti indipendenti (es. Logging, Authentication, StaticFiles, Routing). L'ordine dei middleware è fondamentale.</li>
+    </ul>
+
+    <h3>Esempio: Global.asax (MVC5) vs Startup (Core)</h3>
+    <pre><code>// MVC5 - Global.asax (sintesi)
+protected void Application_Start()
+{
+    AreaRegistration.RegisterAllAreas();
+    RouteConfig.RegisterRoutes(RouteTable.Routes);
+    BundleConfig.RegisterBundles(BundleTable.Bundles);
+}
+
+// ASP.NET Core - Startup.cs
+public class Startup
+{
+    public void ConfigureServices(IServiceCollection services)
+    {
+        services.AddControllersWithViews();
+    }
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    {
+        app.UseHttpsRedirection();
+        app.UseStaticFiles();
+        app.UseRouting();
+        app.UseAuthentication();
+        app.UseAuthorization();
+        app.UseEndpoints(endpoints => endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}"));
+    }
+}</code></pre>
+</section>
+
+<section class="card" id="configuration-di">
+    <h2>Configurazione e Dependency Injection</h2>
+    <ul>
+        <li>In MVC5 la configurazione è generalmente in <code>web.config</code> e il DI è fornito da container esterni. L'approccio varia molto tra progetti.</li>
+        <li>In ASP.NET Core la <strong>configuration</strong> è centralizzata in <code>IConfiguration</code> (appsettings.json, env vars, secret manager) e la DI è nativa: registri servizi in <code>IServiceCollection</code> e li consumi via constructor injection.</li>
+    </ul>
+
+    <pre><code>// Config appsettings.json (Core)
+{
+  "ConnectionStrings": { "Default": "Server=...;Database=..." },
+  "Logging": { "LogLevel": { "Default": "Information" } }
+}
+
+// Uso in Startup
+public void ConfigureServices(IServiceCollection services)
+{
+    services.Configure&lt;MyOptions&gt;(Configuration.GetSection("MyOptions"));
+    services.AddDbContext&lt;AppDbContext&gt;(options =&gt; options.UseSqlServer(Configuration.GetConnectionString("Default")));
+}</code></pre>
+</section>
+
+<section class="card" id="views-razor">
+    <h2>Razor, Tag Helpers e Razor Pages</h2>
+    <ul>
+        <li>ASP.NET Core introduce i <strong>Tag Helpers</strong> che offrono sintassi HTML-like ed IntelliSense per binding e routing (es. &lt;form asp-action="Create"&gt;).</li>
+        <li>Razor Pages è un modello "page-first" utile per pagine semplici e scenari CRUD, riduce la necessità di controller separati.</li>
+        <li>La sintassi Razor è evoluta e ottimizzata per Core ma il pattern MVC rimane compatibile: Views e Partial Views funzionano in modo simile con alcune API diverse.</li>
+    </ul>
+</section>
+
+<section class="card" id="data-access">
+    <h2>Entity Framework: EF6 vs EF Core</h2>
+    <p class="muted">EF Core è un nuovo ORM, non semplicemente EF6 riscritto — ha vantaggi e differenze:</p>
+    <ul>
+        <li>EF6: maturo, feature-complete (es. alcuni tipi di mapping avanzato), stabile su .NET Framework.</li>
+        <li>EF Core: migliore performance, supporto cross-platform, nuovi feature (global query filters, shadow properties), ma alcune API/classiche possono mancare o comportarsi diversamente.</li>
+    </ul>
+    <h4>Considerazioni pratiche</h4>
+    <ul>
+        <li>Se migrare: controlla compatibilità del modello, dei provider DB e funzionalità (es. lazy loading era aggiunto in EF Core 2.1+).</li>
+        <li>Per scenari di legacy con estese personalizzazioni EF6 potrebbe essere più semplice mantenere EF6 su .NET Framework.</li>
+    </ul>
+</section>
+
+<section class="card" id="tooling">
+    <h2>Tooling, progetto e packaging</h2>
+    <ul>
+        <li>ASP.NET Core usa csproj in formato SDK-style, dotnet CLI (<code>dotnet build</code>, <code>dotnet publish</code>), integrazione CI più semplice.</li>
+        <li>Supporto nativo per container (Docker) e per pubblicazione self-contained (includere runtime nel bundle).</li>
+        <li>In MVC5 spesso si usano progetti Visual Studio tradizionali, <code>packages.config</code> o PackageReference a seconda di versione e strumenti.</li>
+    </ul>
+</section>
+
+<section class="card" id="security">
+    <h2>Sicurezza e autenticazione</h2>
+    <ul>
+        <li>In MVC5 si usava spesso ASP.NET Identity integrata con OWIN middleware; la configurazione era legata a <code>Startup.Auth</code> e cookie middleware.</li>
+        <li>ASP.NET Core ha Identity rinnovata, sistema di Data Protection per gestione delle chiavi di protezione dei cookie, supporto nativo per OAuth/OpenID Connect, e middleware per HTTPS/HSTS integrato.</li>
+        <li>Comportamenti cookie (SameSite) e protezioni CSRF sono migliorati e più espliciti in Core.</li>
+    </ul>
+</section>
+
+<section class="card" id="performance">
+    <h2>Performance e scalabilità</h2>
+    <ul>
+        <li>ASP.NET Core è stato progettato per essere più performante e leggero rispetto a System.Web; meno overhead e miglior throughput.</li>
+        <li>Supporto nativo per scenari con elevato parallelismo, migliori benchmark nel serving di contenuti statici e API.</li>
+        <li>Ottimizzazioni: response compression, HTTP/2, Kestrel tuning, connection pooling DB, caching distribuito (Redis) sono più semplici da integrare.</li>
+    </ul>
+</section>
+
+<section class="card" id="migration-checklist">
+    <h2>Migrazione: checklist e consigli pratici</h2>
+    <ol>
+        <li>Valuta dipendenze: librerie Windows-only, COM, IIS-specifiche — se presenti, migrazione può essere complessa.</li>
+        <li>Rimuovi dipendenze da <code>System.Web</code> e <code>HttpContext.Current</code>: usa <code>IHttpContextAccessor</code> in Core.</li>
+        <li>Converti configurazione: <code>web.config</code> → <code>appsettings.json</code> + environment variables.</li>
+        <li>Rivedi autenticazione: OWIN cookie middleware → ASP.NET Core Identity + DataProtection.</li>
+        <li>Valuta EF6 → EF Core: mappa le differenze, test di integrazione e performance.</li>
+        <li>Riscrivi Global.asax (Application_Start) nella combinazione Program.cs / Startup.cs e la pipeline middleware.</li>
+        <li>Aggiorna unit/integration tests e setup CI (dotnet CLI e container builds).</li>
+    </ol>
+
+    <h3>Esempio minimo: file Program.cs (ASP.NET Core 6+)</h3>
+    <pre><code>var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddControllersWithViews();
+var app = builder.Build();
+if (!app.Environment.IsDevelopment()) app.UseExceptionHandler("/Home/Error");
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+app.Run();</code></pre>
+
+    <div class="tip">Strategia consigliata: migrare per fasi — estrarre servizi e API in Core progressivamente e mantenere la UI legacy se necessario (strangler pattern).</div>
+</section>
+
+<section class="card" id="interview-questions">
+    <h2>Domande utili da preparare per il colloquio</h2>
+    <ul>
+        <li>Perché scegliere ASP.NET Core per una nuova applicazione web rispetto a MVC5?</li>
+        <li>Quali limitazioni ti aspetteresti migrando librerie legacy su Core?</li>
+        <li>Spiega come funziona il middleware in ASP.NET Core e un esempio pratico che hai implementato.</li>
+        <li>Quali sono le differenze principali tra EF6 e EF Core che possono influenzare il design del data layer?</li>
+        <li>Come configuri e proteggi i cookie di autenticazione in ASP.NET Core?</li>
+    </ul>
+</section>
+
+<footer>
+    <p class="muted">Nota: "ASP.NET Core" include le versioni basate su .NET Core (1.x–3.1) e il successivo .NET 5/6/7+, comunemente indicato come ".NET". Alcune API e pratiche evolvono rapidamente: per scelta di produzione verifica la documentazione Microsoft per la versione target.</p>
+    <p class="muted">Data creazione: 2025-12-27</p>
+</footer>
+</body>
+</html>
